@@ -6,55 +6,58 @@ damagetype = ("Slashing", "Piercing", "Crushing")
 
 
 
+
 class Inventory:
       def __init__(self, capacity):
             self.capacity = capacity
             self.items = []
 
 
-class Weapon:
+class Item:
+      
+      lastknownitemid = 0
 
-    lastknownitemid = 0
-
-    def __init__(self, name, handed, weight, damagetype, damagerange, value):
+      def __init__(self, name, weight, value):
             self.name = name
-            self.handed = handed
             self.weight = weight
-            self.damagetype = damagetype
-            self.damagerange = damagerange
             self.value = value
 
-            Weapon.lastknownitemid += 1
-            self.itemid = Weapon.lastknownitemid
+            Item.lastknownitemid += 1
+            self.itemid = Item.lastknownitemid
 
+      def equip(item, unit, slot):
+            pass
 
+      def remove(item, unit, slot):
+            pass
 
-def equip(weapon, unit):
-      
-      unit.weaponslot1 = weapon
-      
+class Weapon(Item):
 
+      def __init__(self, name, weight, value, handed, damagetype, damagerange):
+            super().__init__(name, weight, value)
+            self.handed = handed
+            self.damagetype = damagetype
+            self.damagerange = damagerange
 
+      def equip(weapon, unit, slot):
+            if slot == 1:
+                  unit.weaponslot1 = weapon
+            if slot == 2:
+                  unit.weaponslot2 = weapon
 
+class Armor(Item):
 
-
-#class Armor:
-
-
-#class Shield:
-
-#weapon = Weapon("Iron Short Sword", handed, 4, "Slashing", (6, 8))
-
-#print(weapon.name)
-
-
+      def __init__(self, name, weight, value, armortype, slashingreduction, piercingreduction, crushingreduction):
+            super().__init__(name, weight, value)
+            self.armortype = armortype
+            self.slashingreduction = slashingreduction
+            self.piercingreduction = piercingreduction
+            self.crushingreduction = crushingreduction
 
 
 
 weapons_dict = {
-      'Iron Short Sword': Weapon("Iron Short Sword", "one-handed", 4, "Slashing", 6, 50),
-      'Iron Greatsword': Weapon("Iron Greatsword", "two-handed", 8, "Slashing", 12, 100),
-      'Iron Rapier': Weapon("Iron Rapier", "one-handed", 3, "Piercing", 6, 75),
+      'Iron Short Sword': Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", (6, 8)),
 
 
 }

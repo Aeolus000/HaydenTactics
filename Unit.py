@@ -5,6 +5,8 @@ import Items
 nameslist = ["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'jin", "Byron", "Jaeremy", "Artemisia", "Judica", "Adalinde", "Olivia", "Garth", "Erebus", "Marius", "Daniel", "Selene", "Liam"]
 charclasses = ["Weaponmaster", "Shaman", "Necromancer", "Monk", "Demonologist", "Elementalist", "Rogue", "Hemomancer", "Astromancer", "Crusader", "Priest"]
 unitlist = []
+enemyunitlist = []
+
 
 class Unit:
 
@@ -48,6 +50,13 @@ class Unit:
 
         self.weaponslot1 = None
         self.weaponslot2 = None
+        self.weaponslot3 = None
+
+        self.helmetslot = None
+        self.armorlot = None
+        self.legslot = None
+        self.ringslot = None
+
 
 
 def get_unit_by_id(id):
@@ -55,12 +64,21 @@ def get_unit_by_id(id):
         if id == unit.id:
             return unit
 
-def melee_damage(unit):
+def get_melee_damage(unit):
     weapon_damage = 0
     if unit.weaponslot1:
         weapon_damage = unit.weaponslot1.damagerange
-    melee_damage = (unit.baseStrength) + (unit.baseDexterity / 2) + weapon_damage
+    melee_damage = (unit.baseStrength) + (unit.baseDexterity / 2) + weapon_damage 
     return round(melee_damage)
+
+def get_damage_reduction(unit):
+    damage_reduction = (unit.basePhysicalResistance / 100)
+    return damage_reduction
+
+def damage_calc(attacker, opponent):
+
+    finaldamage = get_melee_damage(attacker) - (get_melee_damage(attacker) * get_damage_reduction(opponent))
+    return round(finaldamage)
 
 def display_unit(unit, option = 0):
     print("\n************************\n")
@@ -83,7 +101,7 @@ def display_unit(unit, option = 0):
         print(f"Intelligence:\t{unit.baseIntelligence}")
         print(f"Mind:\t\t{unit.baseMind}")
         print(f"Resistance:\t{unit.baseResistance}")
-        print(f"You would deal {melee_damage(unit)} melee damage.")
+        print(f"You would deal {get_melee_damage(unit)} melee damage.")
         print(f"You have a {unit.melee_hit_chance}% chance to hit.")
         print(f"You have {unit.basePhysicalResistance}% Physical Resistance.")
         if unit.weaponslot1:
@@ -136,9 +154,9 @@ def attack(attacker, opponent):
 
     if hitroll >= 100 - finalhitchance:
         print(f"Roll: {hitroll}")
-        print(f"{attacker.name} HIT for {melee_damage(attacker)} damage!")
+        print(f"{attacker.name} HIT for {damage_calc(attacker, opponent)} damage!")
 
-        opponent.currentHP = opponent.currentHP - melee_damage(attacker)
+        opponent.currentHP = opponent.currentHP - damage_calc(attacker, opponent)
         print(f"{opponent.name} now has {opponent.currentHP} of {opponent.maxHP} HP.")
     else:
         print(hitroll)

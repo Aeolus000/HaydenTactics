@@ -10,8 +10,10 @@ def main():
     while is_running:
         print(f"(1)\tRoster Menu.")
         print(f"(2)\tView Roster (Quick Summary).")
-        print(f"(3)\tHave a unit attack another.")
-        print(f"(4)\tExit.")
+        print(f"(3)\tView Inventory.")
+        print(f"(4)\tBattlefield.")
+
+        print(f"(5)\tExit.")
         option = input("Enter an option: ")
 
         if option == "1":
@@ -61,8 +63,18 @@ def main():
 
                         equiper = Unit.get_unit_by_id(equiper_id)
 
-                        weapon = Items.Weapon("Iron Short Sword", "handed", 4, "Slashing", 6, 50)
-                        Items.equip(weapon, equiper)
+                        hand = input("(L)eft or (R)ight hand? ").lower()
+
+                        #testing for % damage reduction actually working or not, this sword normally wouldn't have 1000 damage
+                        weapon = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 1000)
+
+                        if hand == "r":
+                            Items.Weapon.equip(weapon, equiper, 1)
+                        if hand == "l":
+                            Items.Weapon.equip(weapon, equiper, 2)
+                        else:
+                            print("Invalid option.")
+
              
                 if menuchoice == "3": 
                     
@@ -107,7 +119,7 @@ def main():
                     Unit.display_unit(unit, 1)
                 print("\n************************\n")
 
-        if option == "3":
+        if option == "4":
             for unit in Unit.unitlist:
                 print(f"{unit.id}) {unit.name}")
             unit_id1 = int(input("Choose an attacker ID from the above units: "))
@@ -119,7 +131,7 @@ def main():
 
 
 
-        if option == "4":
+        if option == "5":
             is_running = False
         
 
