@@ -50,7 +50,10 @@ class Unit:
         self.weaponslot2 = None
 
 
-
+def get_unit_by_id(id):
+    for unit in unitlist:
+        if id == unit.id:
+            return unit
 
 def melee_damage(unit):
     weapon_damage = 0
@@ -60,13 +63,15 @@ def melee_damage(unit):
     return round(melee_damage)
 
 def display_unit(unit, option = 0):
-    print("************************")
+    print("\n************************\n")
     print(f"ID: {unit.id}\tName:\t{unit.name}")
     print(f"Job:\t{unit.charclass}")
     print(f"Level:\t{unit.level}")
 
+    if option == 1:
+        print(f"HP: {unit.currentHP}/{unit.maxHP} Mana: {unit.currentMana}/{unit.maxMana}")
 
-    if option == 1:  
+    if option == 2:  
         print("************************")
         print(f"Current / Max HP:\t{unit.currentHP} / {unit.maxHP}")
         print(f"Current / Max Mana:\t{unit.currentMana} / {unit.maxMana}")
@@ -92,7 +97,7 @@ def level_up(unit):
         unit_current_stat = getattr(unit, key)
         setattr(unit, key, unit_current_stat + value)
 
-        print(f"{key, value}")
+        #print(f"{key, value}")
 
     unit.level += 1
     refresh_stats(unit)
