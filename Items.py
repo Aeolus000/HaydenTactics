@@ -8,9 +8,26 @@ damagetype = ("Slashing", "Piercing", "Crushing")
 
 
 class Inventory:
+
+      war_funds = 1000
+
       def __init__(self, capacity):
             self.capacity = capacity
             self.items = []
+
+
+
+      def discard(item, inventory):
+                  inventory.items.remove(item)
+
+      def display_inv(inventory):
+            if not inventory.items:
+                  print("\nYou have no items in your inventory.\n")
+            else:
+                  print("Inventory: ----------------------")
+                  for items in inventory.items:
+                        print(f"| ID:{items.itemid} {items.name}", end = " ")
+      
 
 
 class Item:
@@ -28,8 +45,16 @@ class Item:
       def equip(item, unit, slot):
             pass
 
-      def remove(item, unit, slot):
+      def unequip(item, unit, slot):
             pass
+
+
+      def get_item_by_id(id, inventory):
+            for item in inventory.items:
+                  if id == item.itemid:
+                        return item
+
+
 
 class Weapon(Item):
 
@@ -39,11 +64,32 @@ class Weapon(Item):
             self.damagetype = damagetype
             self.damagerange = damagerange
 
-      def equip(weapon, unit, slot):
+      def equip(weapon, unit, slot, inventory):
             if slot == 1:
                   unit.weaponslot1 = weapon
             if slot == 2:
                   unit.weaponslot2 = weapon
+
+            inventory.items.remove(weapon)
+
+      def unequip(unit, slot, inventory):
+            if slot == 1:
+                  slot = unit.weaponslot1
+
+                  inventory.items.append(slot)
+                  unit.weaponslot1 = None
+
+            elif slot == 2:
+                  slot = unit.weaponslot2
+
+                  inventory.items.append(slot)
+                  unit.weaponslot2 = None
+            
+            
+            
+
+
+            
 
 class Armor(Item):
 
@@ -57,7 +103,7 @@ class Armor(Item):
 
 
 weapons_dict = {
-      'Iron Short Sword': Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", (6, 8)),
+      'Iron Short Sword': Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6),
 
 
 }

@@ -7,7 +7,6 @@ charclasses = ["Weaponmaster", "Shaman", "Necromancer", "Monk", "Demonologist", 
 unitlist = []
 enemyunitlist = []
 
-
 class Unit:
 
     lastknownid = 0
@@ -88,7 +87,16 @@ def display_unit(unit, option = 0):
 
     if option == 1:
         print(f"HP: {unit.currentHP}/{unit.maxHP} Mana: {unit.currentMana}/{unit.maxMana}")
-
+        if unit.weaponslot1:
+            print(f"EQUIP: {unit.weaponslot1.name}")
+            print("\n************************")
+        if unit.weaponslot2:
+            print(f"EQUIP: {unit.weaponslot2.name}")
+            print("\n************************")
+        if unit.weaponslot3:
+            print(f"EQUIP: {unit.weaponslot3.name}")
+            print("\n************************")
+              
     if option == 2:  
         print("************************")
         print(f"Current / Max HP:\t{unit.currentHP} / {unit.maxHP}")
@@ -180,12 +188,6 @@ def generate_random_unit():
     randomunit = Unit(randomname, charclass, 1)
     unitlist.append(randomunit)
     return randomunit
-
-
-
-#display_unit(unit1)
-#random_unit()
-#random_unit()
 
 
 
