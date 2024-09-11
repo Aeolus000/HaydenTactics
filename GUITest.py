@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(700, 300, 500, 500)
         self.list1 = QListWidget(self)
         self.button = QPushButton("Create", self)
+        self.setWindowTitle("Hayden Tactics")
         self.initUI()
 
     def initUI(self):
