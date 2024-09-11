@@ -12,44 +12,37 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setGeometry(700, 300, 500, 500)
+        self.list1 = QListWidget(self)
+        self.button = QPushButton("Create", self)
         self.initUI()
 
     def initUI(self):
-        central_widget = QWidget()
 
-        self.setCentralWidget(central_widget)
+        #selected_unit = self.list1.clicked(self.selected_item)
+        self.list1.setGeometry(0, 0, 100, 100)
+        self.button.setGeometry(100, 100, 100, 100)
+        self.button.setStyleSheet("font-size: 25px;"
+                                  "font-family: Arial")
 
 
-        list1 = QListWidget()
 
-        Unit.generate_random_unit()
-        Unit.generate_random_unit()
-        Unit.generate_random_unit()
+        label1 = QLabel("Unit")
+
+
+        #grid = QGridLayout()
+        #grid.addWidget(label1, 0, 1)
+        #grid.addWidget(self.list1, 0, 0)
+
+        self.button.clicked.connect(self.selected_item)
+
+    def selected_item(self):
+        unit = Unit.generate_random_unit()
+        print(f"created {unit.name}")
+
+        self.list1.clear()
 
         for unit in Unit.unitlist:
-            list1.addItem(unit.name)
-        #list1.addItem("hello")
-
-
-        label1 = QLabel("Hello")
-
-        label1.setStyleSheet("background-color: red;")
-
-        vbox = QVBoxLayout()
-        hbox = QHBoxLayout()
-        grid = QGridLayout()
-        
-        #vbox.addWidget(label1)
-        #vbox.addWidget(list1)
-        #hbox.addWidget(label1)
-
-        grid.addWidget(label1, 0, 0)
-        grid.addWidget(list1, 0, 1)
-
-        central_widget.setLayout(grid)
-
-
-
+            self.list1.addItem(unit.name)
 
 
 def main():
