@@ -8,31 +8,30 @@ import Stats
 
 
 
-class MainWindow(QMainWindow):
+class UnitGUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setGeometry(700, 300, 500, 500)
+        #self.setGeometry(700, 300, 500, 500)
         self.list1 = QListWidget(self)
-        self.button = QPushButton("Create", self)
-        self.setWindowTitle("Hayden Tactics")
+        self.button = QPushButton("Create Random Character", self)
+
         self.initUI()
 
     def initUI(self):
 
-        #selected_unit = self.list1.clicked(self.selected_item)
+        self.setWindowTitle("Hayden Tactics")
+
+        grid = QGridLayout()
+        grid.addWidget(self.list1)
+        grid.addWidget(self.button)
+
         self.list1.setGeometry(0, 0, 200, 200)
-        self.button.setGeometry(0, 200, 100, 100)
-        self.button.setStyleSheet("font-size: 25px;"
-                                  "font-family: Arial")
+        #self.button.setGeometry(0, 200, 100, 100)
+        #self.button.setStyleSheet("font-size: 25px;"
+        #                          "font-family: Arial")
 
 
-
-        label1 = QLabel("Unit")
-
-
-        #grid = QGridLayout()
-        #grid.addWidget(label1, 0, 1)
-        #grid.addWidget(self.list1, 0, 0)
+        self.setLayout(grid)
 
         self.button.clicked.connect(self.selected_item)
 
@@ -45,13 +44,8 @@ class MainWindow(QMainWindow):
         for unit in Unit.unitlist:
             self.list1.addItem(f"{unit.id} {unit.name}")
 
-
-def main():
-    app = QApplication(sys.argv)
-    ex = MainWindow()
-    ex.show()
-    sys.exit(app.exec_())
-
-
 if __name__ == '__main__':
-    main()
+    app = QApplication(sys.argv)
+    unit_gui = UnitGUI()
+    unit_gui.show()
+    sys.exit(app.exec_())
