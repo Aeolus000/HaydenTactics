@@ -19,8 +19,8 @@ class MainWindow(QMainWindow):
     def initUI(self):
 
         #selected_unit = self.list1.clicked(self.selected_item)
-        self.list1.setGeometry(0, 0, 100, 100)
-        self.button.setGeometry(100, 100, 100, 100)
+        self.list1.setGeometry(0, 0, 200, 200)
+        self.button.setGeometry(0, 200, 100, 100)
         self.button.setStyleSheet("font-size: 25px;"
                                   "font-family: Arial")
 
@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         self.list1.clear()
 
         for unit in Unit.unitlist:
-            self.list1.addItem(unit.name)
+            self.list1.addItem(f"{unit.id} {unit.name}")
 
 
 def main():
