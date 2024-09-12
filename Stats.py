@@ -29,7 +29,7 @@ levelup_stats = {
     'Shaman': LevelUpStats(1,1,2,2,3,1,3,3),
     'Monk': LevelUpStats(2,4,2,2,1,1,1,2),
     'Necromancer': LevelUpStats(0,1,2,1,1,4,4,2),
-    'Demonologist': LevelUpStats(0,0,0,0,0,0,0,0),
+    'Demonologist': LevelUpStats(2,0,1,2,4,1,3,1),
     'Hemomancer': LevelUpStats(0,1,2,4,1,2,1,3),
     'Astromancer': LevelUpStats(0,1,1,1,1,4,3,5),
     'Crusader': LevelUpStats(3,1,1,2,1,2,1,4),

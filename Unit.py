@@ -34,8 +34,8 @@ class Unit:
         self.maxMana = 10 + (2 * self.baseMind)
         self.currentMana = self.maxMana
 
-        self.melee_hit_chance = round((70 + (0.25 * self.baseDexterity)))
-        self.ranged_hit_chance = 50 + (0.25 * self.baseDexterity)
+        self.melee_hit_chance = 70 + (self.baseDexterity / 5)
+        self.ranged_hit_chance = 50 + (self.baseDexterity / 4)
 
         self.basePhysicalResistance = (self.baseConstitution * 0.5)
         self.baseMagicalResistance = (self.baseResistance * 0.5)
@@ -103,7 +103,8 @@ def display_unit(unit, option = 0):
         display_stats.append(f"Mind:\t\t{unit.baseMind}")
         display_stats.append(f"Resistance:\t{unit.baseResistance}")
         display_stats.append(f"\nMelee Damage:\t{get_melee_damage(unit)}")
-        display_stats.append(f"Chance to hit:\t{round(unit.melee_hit_chance)}%")
+        display_stats.append(f"Melee Hit Chance:\t{(get_hit_chance(unit, None, False))}%")
+        display_stats.append(f"Ranged Hit Chance:{(get_hit_chance(unit, None, True))}%")
         display_stats.append(f"\nPhysical Damage Reduction:\t{unit.basePhysicalResistance}%")
         display_stats.append(f"Magical Damage Reduction:\t{unit.baseMagicalResistance}%")
         if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
@@ -123,13 +124,10 @@ def level_up(unit):
         unit_current_stat = getattr(unit, key)
         setattr(unit, key, unit_current_stat + value)
 
-        #print(f"{key, value}")
-
     unit.level += 1
     refresh_stats(unit)
 
-    print(f"{unit.name} leveled up to Level {unit.level}!")
-        #unit.baseStrength = unit.baseStrength + stat['str']
+    #print(f"{unit.name} leveled up to Level {unit.level}!")
 
 def refresh_stats(unit):
 
@@ -148,19 +146,35 @@ def refresh_stats(unit):
     unit.baseEvasion = 0
     unit.baseBlockChance = 0
 
+def get_hit_chance(attacker, opponent = None, is_ranged = False):
+
+    if not is_ranged:
+        if opponent:
+            finalhitchance = (attacker.melee_hit_chance - opponent.baseEvasion)
+        else: 
+            finalhitchance = attacker.melee_hit_chance
+    elif is_ranged:
+        if opponent:
+            finalhitchance = (attacker.ranged_hit_chance - opponent.baseEvasion)
+        else:
+            finalhitchance = attacker.ranged_hit_chance
+
+    if finalhitchance >= 100: finalhitchance = 100
+
+    return round(finalhitchance)
 
 
 def attack(attacker, opponent):
     #attackerHitChance = attacker.melee_hit_chance
     #opponentEvasion = opponent.baseEvasion
 
-    finalhitchance = (attacker.melee_hit_chance - opponent.baseEvasion)
+    hitchance = get_hit_chance(attacker, opponent)
 
     hitroll = random.randint(1, 100)
 
-    print(f"You have a {finalhitchance}% chance to hit.")
+    print(f"You have a {hitchance}% chance to hit.")
 
-    if hitroll >= 100 - finalhitchance:
+    if hitroll >= 100 - hitchance:
         print(f"Roll: {hitroll}")
         print(f"{attacker.name} HIT for {damage_calc(attacker, opponent)} damage!")
 
@@ -171,8 +185,17 @@ def attack(attacker, opponent):
         print(f"{attacker.name} missed.")
 
 def generate_random_unit():
-    randomname = random.choices(nameslist)[0]
-    charclass = random.choices(charclasses)[0]
+
+    if len(nameslist) <= 0:
+        randomname = "Out Of Names"
+    else:
+        randomname = random.choice(nameslist)
+        nameslist.remove(randomname)
+
+    #randomname = random.choice(nameslist)
+    charclass = random.choice(charclasses)
+
+
 
 #    validname = False
 

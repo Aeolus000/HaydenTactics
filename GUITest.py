@@ -17,6 +17,7 @@ class UnitGUI(QWidget):
         self.button = QPushButton("Create Random Character", self)
         self.level_up_button = QPushButton("Level Up", self)
         self.dismiss_unit_button = QPushButton("Dismiss Unit", self)
+        self.message = QLabel(self)
         #self.confirm_dismiss_button = QDialogButtonBox(self)
         #self.exit = QPushButton("Exit", self)
 
@@ -35,21 +36,29 @@ class UnitGUI(QWidget):
         #grid.addWidget(self.exit)
         grid.addWidget(self.level_up_button, 1, 1)
         grid.addWidget(self.dismiss_unit_button, 2, 1)
+        grid.addWidget(self.message, 0, 2)
 
         self.list1.setGeometry(0, 0, 200, 200)
         self.unit_stats.setGeometry(100, 100, 400, 600)
+
+        self.message.setStyleSheet("font-family: calibri; font-size: 20px")
 
         self.setLayout(grid)
 
         self.button.clicked.connect(self.display_random_unit)
 
+        self.level_up_button.setDisabled(True)
         self.level_up_button.clicked.connect(self.display_level_up)
 
         self.list1.itemClicked.connect(self.selection_changed)
 
         self.dismiss_unit_button.setDisabled(True)
-        self.level_up_button.setDisabled(True)
         self.dismiss_unit_button.clicked.connect(self.dismiss_unit)
+
+
+
+
+
 
     def selection_changed(self):
 
@@ -98,6 +107,7 @@ class UnitGUI(QWidget):
         unit = self.get_selected_unit()
 
         Unit.level_up(unit)
+        self.message.setText(f"{unit.name} has leveled up to Level {unit.level}!")
 
         self.selection_changed()
 
