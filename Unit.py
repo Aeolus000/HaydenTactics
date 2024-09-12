@@ -19,19 +19,19 @@ class Unit:
 
 
         # base stat roll
-        self.baseStrength = 10 + random.randrange(-2, 2)
-        self.baseDexterity = 10 + random.randrange(-2, 2)
-        self.baseSpeed = 10 + random.randrange(-2, 2)
-        self.baseVitality = 10 + random.randrange(-2, 2)
-        self.baseConstitution = 10 + random.randrange(-2, 2)
-        self.baseIntelligence = 10 + random.randrange(-2, 2)
-        self.baseMind = 10 + random.randrange(-2, 2)
-        self.baseResistance = 10 + random.randrange(-2, 2)
+        self.baseStrength = 10 + random.randrange(-2, 3)
+        self.baseDexterity = 10 + random.randrange(-2, 3)
+        self.baseSpeed = 10 + random.randrange(-2, 3)
+        self.baseVitality = 10 + random.randrange(-2, 3)
+        self.baseConstitution = 10 + random.randrange(-2, 3)
+        self.baseIntelligence = 10 + random.randrange(-2, 3)
+        self.baseMind = 10 + random.randrange(-2, 3)
+        self.baseResistance = 10 + random.randrange(-2, 3)
 
-        self.maxHP = 50 + (4 * self.baseVitality)
+        self.maxHP = 75 + (4 * self.baseVitality)
         self.currentHP = self.maxHP
 
-        self.maxMana = 20 + (self.baseMind)
+        self.maxMana = 10 + (2 * self.baseMind)
         self.currentMana = self.maxMana
 
         self.melee_hit_chance = round((70 + (0.25 * self.baseDexterity)))
@@ -67,7 +67,7 @@ def get_melee_damage(unit):
     weapon_damage = 0
     if unit.weaponslot1:
         weapon_damage = unit.weaponslot1.damagerange
-    melee_damage = (unit.baseStrength) + (unit.baseDexterity / 2) + weapon_damage 
+    melee_damage = (unit.baseStrength / 2) + (unit.baseDexterity / 4) + weapon_damage 
     return round(melee_damage)
 
 def get_damage_reduction(unit):
@@ -80,12 +80,36 @@ def damage_calc(attacker, opponent):
     return round(finaldamage)
 
 def display_unit(unit, option = 0):
-
     display_stats = [f'ID: {unit.id}',
-                     f'Name:\t{unit.name}', 
-                     f'Job:\t{unit.charclass}', 
-                     f'Level:\t{unit.level}']
-    
+                    f'Name:\t{unit.name}', 
+                    f'Job:\t{unit.charclass}',  
+                    f'Level:\t{unit.level}'
+                    ]
+    if option == 1:
+        display_stats.append(f'\nHP: {unit.currentHP}/{unit.maxHP}   Mana: {unit.currentMana}/{unit.maxMana}')
+        if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
+        if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
+        if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
+
+    if option == 2:
+        display_stats.append(f"\nCurrent / Max HP:\t\t{unit.currentHP} / {unit.maxHP}")
+        display_stats.append(f"Current / Max Mana:\t{unit.currentMana} / {unit.maxMana}")
+        display_stats.append(f"Strength:\t\t{unit.baseStrength}")
+        display_stats.append(f"Dexterity:\t{unit.baseDexterity}")
+        display_stats.append(f"Speed:\t\t{unit.baseSpeed}")
+        display_stats.append(f"Vitality:\t\t{unit.baseVitality}")
+        display_stats.append(f"Constitution:\t{unit.baseConstitution}")
+        display_stats.append(f"Intelligence:\t{unit.baseIntelligence}")
+        display_stats.append(f"Mind:\t\t{unit.baseMind}")
+        display_stats.append(f"Resistance:\t{unit.baseResistance}")
+        display_stats.append(f"\nMelee Damage:\t{get_melee_damage(unit)}")
+        display_stats.append(f"Chance to hit:\t{round(unit.melee_hit_chance)}%")
+        display_stats.append(f"\nPhysical Damage Reduction:\t{unit.basePhysicalResistance}%")
+        display_stats.append(f"Magical Damage Reductiont:\t{unit.baseMagicalResistance}%")
+        if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
+        if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
+        if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
+            
 
 
     return '\n'.join(display_stats)
@@ -109,11 +133,11 @@ def level_up(unit):
 
 def refresh_stats(unit):
 
-    unit.maxHP = 50 + (4 * unit.baseVitality)
-    #unit.currentHP = unit.maxHP
+    unit.maxHP = 75 + (4 * unit.baseVitality)
+    unit.currentHP = unit.maxHP
 
-    unit.maxMana = 20 + (unit.baseMind)
-    #unit.currentMana = unit.maxMana
+    unit.maxMana = 10 + (2 * unit.baseMind)
+    unit.currentMana = unit.maxMana
 
     unit.melee_hit_chance = 70 + (0.25 * unit.baseDexterity)
     unit.ranged_hit_chance = 50 + (0.25 * unit.baseDexterity)

@@ -15,7 +15,8 @@ class UnitGUI(QWidget):
         self.list1 = QListWidget(self)
         self.unit_stats = QLabel("Placeholder", self)
         self.button = QPushButton("Create Random Character", self)
-        self.exit = QPushButton("Exit", self)
+        self.level_up_button = QPushButton("Level Up", self)
+        #self.exit = QPushButton("Exit", self)
 
         self.initUI()
         
@@ -25,26 +26,22 @@ class UnitGUI(QWidget):
 
         self.setWindowTitle("Hayden Tactics")
 
-        self.is_running = True
-
         grid = QGridLayout()
-        grid.addWidget(self.list1)
+        grid.addWidget(self.list1, 0, 0)
         grid.addWidget(self.button)
-        grid.addWidget(self.unit_stats)
-        grid.addWidget(self.exit)
+        grid.addWidget(self.unit_stats, 0, 1)
+        #grid.addWidget(self.exit)
+        grid.addWidget(self.level_up_button, 1, 1)
 
         self.list1.setGeometry(0, 0, 200, 200)
-        self.unit_stats.setGeometry(0, 0, 500, 500)
-        #self.button.setGeometry(0, 200, 100, 100)
-        #self.button.setStyleSheet("font-size: 25px;"
-        #                          "font-family: Arial")
-
+        self.unit_stats.setGeometry(100, 100, 0, 0)
 
         self.setLayout(grid)
 
         self.button.clicked.connect(self.display_random_unit)
 
-        #self.list1.itemSelectionChanged.connect(self.selection_changed)
+        self.level_up_button.clicked.connect(self.display_level_up)
+
         self.list1.itemClicked.connect(self.selection_changed)
 
 
@@ -53,9 +50,14 @@ class UnitGUI(QWidget):
 
         unit = self.get_selected_unit()
 
-        unit_stats = Unit.display_unit(unit)
+        unit_stats = Unit.display_unit(unit, 2)
 
         self.unit_stats.setText(unit_stats)
+
+        if unit.level >= 30:
+            self.level_up_button.setDisabled(True)
+        else:
+            self.level_up_button.setDisabled(False)
 
 
     def get_selected_unit(self):
@@ -68,8 +70,6 @@ class UnitGUI(QWidget):
         return unit
         
 
-
-
     def display_random_unit(self):
         unit = Unit.generate_random_unit()
         #print(f"created {unit.name}")
@@ -81,13 +81,14 @@ class UnitGUI(QWidget):
             #self.list1.addItem(item)
             self.list1.addItem(f"{unit.id} {unit.name}")
 
+    def display_level_up(self):
+        unit = self.get_selected_unit()
+
+        Unit.level_up(unit)
+
+        self.selection_changed()
+
             
-
-        #self.unit_stats.text("Blah")
-
-        
-
-    #def display_unit_stats(self):
 
 
 if __name__ == '__main__':
