@@ -105,7 +105,7 @@ def display_unit(unit, option = 0):
         display_stats.append(f"\nMelee Damage:\t{get_melee_damage(unit)}")
         display_stats.append(f"Chance to hit:\t{round(unit.melee_hit_chance)}%")
         display_stats.append(f"\nPhysical Damage Reduction:\t{unit.basePhysicalResistance}%")
-        display_stats.append(f"Magical Damage Reductiont:\t{unit.baseMagicalResistance}%")
+        display_stats.append(f"Magical Damage Reduction:\t{unit.baseMagicalResistance}%")
         if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
         if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
         if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
