@@ -16,6 +16,8 @@ class UnitGUI(QWidget):
         self.unit_stats = QLabel("Placeholder", self)
         self.button = QPushButton("Create Random Character", self)
         self.level_up_button = QPushButton("Level Up", self)
+        self.dismiss_unit_button = QPushButton("Dismiss Unit", self)
+        #self.confirm_dismiss_button = QDialogButtonBox(self)
         #self.exit = QPushButton("Exit", self)
 
         self.initUI()
@@ -32,6 +34,7 @@ class UnitGUI(QWidget):
         grid.addWidget(self.unit_stats, 0, 1)
         #grid.addWidget(self.exit)
         grid.addWidget(self.level_up_button, 1, 1)
+        grid.addWidget(self.dismiss_unit_button, 2, 1)
 
         self.list1.setGeometry(0, 0, 200, 200)
         self.unit_stats.setGeometry(100, 100, 0, 0)
@@ -44,7 +47,8 @@ class UnitGUI(QWidget):
 
         self.list1.itemClicked.connect(self.selection_changed)
 
-
+        self.dismiss_unit_button.setDisabled(True)
+        self.dismiss_unit_button.clicked.connect(self.dismiss_unit)
 
     def selection_changed(self):
 
@@ -59,6 +63,16 @@ class UnitGUI(QWidget):
         else:
             self.level_up_button.setDisabled(False)
 
+        if self.list1.currentItem() == None:
+            self.dismiss_unit_button.setDisabled(True)
+        else:
+            self.dismiss_unit_button.setDisabled(False)
+
+        
+    def refresh_unit_list(self):
+        self.list1.clear()
+        for unit in Unit.unitlist:
+            self.list1.addItem(f"{unit.id} {unit.name}")
 
     def get_selected_unit(self):
 
@@ -74,12 +88,7 @@ class UnitGUI(QWidget):
         unit = Unit.generate_random_unit()
         #print(f"created {unit.name}")
 
-        self.list1.clear()
-
-        for unit in Unit.unitlist:
-            #item = QListWidgetItem(unit.id, unit.name)
-            #self.list1.addItem(item)
-            self.list1.addItem(f"{unit.id} {unit.name}")
+        self.refresh_unit_list()
 
     def display_level_up(self):
         unit = self.get_selected_unit()
@@ -87,6 +96,18 @@ class UnitGUI(QWidget):
         Unit.level_up(unit)
 
         self.selection_changed()
+
+    def dismiss_unit(self):
+        unit = self.get_selected_unit()
+        Unit.unitlist.remove(unit)
+
+        self.refresh_unit_list()
+
+        self.dismiss_unit_button.setDisabled(True)
+
+        
+
+
 
             
 
