@@ -55,13 +55,16 @@ class Item:
                         return item
                   
       def display_stats(item, option = 0):
-            display_stats = [f'Item: {item.name}',
+            display_stats = [f'ID: {item.itemid}',
+                    f'Name: {item.name}',
                     f'Damage:\t{item.damagerange}',
                     f'Value:\t{item.value}',
                     ]
             
             if option == 1:
                   pass
+
+            return '\n'.join(display_stats)
 
 
 

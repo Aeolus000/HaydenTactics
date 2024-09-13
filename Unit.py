@@ -119,6 +119,18 @@ def display_unit(unit, option = 0):
 
 
     return '\n'.join(display_stats)
+
+
+def get_weapon_id(unit, slot):
+
+    if slot == 1:
+        weapon_id = unit.weaponslot1.itemid
+    if slot == 2:
+        weapon_id = unit.weaponslot2.itemid
+    if slot == 3:
+        weapon_id = unit.weaponslot3.itemid
+
+    return weapon_id
     
     
 def level_up(unit):

@@ -59,8 +59,6 @@ class UnitGUI(QWidget):
 
 
 
-
-
     def selection_changed(self):
 
         unit = self.get_selected_unit()
@@ -123,8 +121,6 @@ class UnitGUI(QWidget):
         self.level_up_button.setDisabled(True)
 
 
-
-
 class InventoryGUI(QWidget):
     def __init__(self):
         super().__init__()
@@ -165,19 +161,10 @@ class InventoryGUI(QWidget):
         self.unit_equip_label.setAlignment(Qt.AlignCenter)
 
         self.setLayout(grid)
-        
-        ## testing by creating a bunch of stuff
-        Unit.generate_random_unit()
-        Unit.generate_random_unit()
-        unittest = Unit.generate_random_unit()
-        inventory = Items.Inventory(50)
-        weapon = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
-        inventory.items.append(weapon)
-        weapon.equip(unittest, 1, inventory)
 
 
-
-        self.unit_list.itemClicked.connect(self.selection_changed)
+        self.unit_list.itemClicked.connect(self.selection_changed_unit_list)
+        self.unit_equip_list.itemClicked.connect(self.selection_changed_equipment_list)
 
         self.refresh_unit_list()
 
@@ -193,11 +180,11 @@ class InventoryGUI(QWidget):
         
         # for unit in Unit.unitlist:
         if unit.weaponslot1:
-            self.unit_equip_list.addItem(f"Weapon Slot 1: {unit.weaponslot1.name}")
+            self.unit_equip_list.addItem(f"{unit.weaponslot1.itemid} {unit.weaponslot1.name}")
         if unit.weaponslot2:
-            self.unit_equip_list.addItem(f"Weapon Slot 2: {unit.weaponslot2.name}")
+            self.unit_equip_list.addItem(f"{unit.weaponslot1.itemid} {unit.weaponslot2.name}")
         if unit.weaponslot3:
-            self.unit_equip_list.addItem(f"Weapon Slot 3: {unit.weaponslot3.name}")
+            self.unit_equip_list.addItem(f"{unit.weaponslot1.itemid} {unit.weaponslot3.name}")
 
     def get_selected_unit(self):
 
@@ -208,24 +195,31 @@ class InventoryGUI(QWidget):
 
         return unit
     
-    # def get_selected_equipment(self):
+    def get_selected_equipment(self):
 
-    #     equipment = self.unit_equip_list.currentItem()
+        equipment_selection = self.unit_equip_list.currentItem()
 
-    #     item_id = int(item.text().split(' ')[0])
-    #     unit = Unit.get_unit_by_id(unit_id)
+        item_id = int(equipment_selection.text().split(' ')[0])
 
-    #     return unit
+        for unit in Unit.unitlist:
+            if unit.weaponslot1:
+                if unit.weaponslot1.itemid == item_id:
+                    equipment = unit.weaponslot1
+                    print(equipment)
+
+        return equipment
     
-    def selection_changed(self):
+    def selection_changed_unit_list(self):
 
         unit = self.get_selected_unit()
-
-        item_stats = Unit.display_unit(unit, 3)
-
-        self.item_stats_label.setText(item_stats)
-
+        self.item_stats_label.setText(Unit.display_unit(unit, 3))
         self.refresh_equipment_list()
+
+
+    def selection_changed_equipment_list(self):
+
+        equipment = self.get_selected_equipment()
+        self.item_stats_label.setText(equipment.display_stats(equipment))
 
 
 
@@ -234,9 +228,22 @@ class InventoryGUI(QWidget):
 
 
 if __name__ == '__main__':
+
+    #unit_gui.show()
+
+        ## testing by creating a bunch of stuff
+    Unit.generate_random_unit()
+    Unit.generate_random_unit()
+    unittest = Unit.generate_random_unit()
+    items_inventory = Items.Inventory(50)
+    weapon = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
+    items_inventory.items.append(weapon)
+    weapon.equip(unittest, 1, items_inventory)
+
+
+
     app = QApplication(sys.argv)
     unit_gui = UnitGUI()
     inventory_gui = InventoryGUI()
     inventory_gui.show()
-    #unit_gui.show()
     sys.exit(app.exec_())
