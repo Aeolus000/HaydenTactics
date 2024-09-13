@@ -110,6 +110,11 @@ def display_unit(unit, option = 0):
         if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
         if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
         if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
+
+    if option == 3:
+        if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
+        if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
+        if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
             
 
 
@@ -187,10 +192,11 @@ def attack(attacker, opponent):
 def generate_random_unit():
 
     if len(nameslist) <= 0:
-        randomname = "Out Of Names"
-    else:
-        randomname = random.choice(nameslist)
-        nameslist.remove(randomname)
+        #randomname = "Out Of Names"
+        nameslist.extend(["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'jin", "Byron", "Jaeremy", "Artemisia", "Judica", "Adalinde", "Olivia", "Garth", "Erebus", "Marius", "Daniel", "Selene", "Liam", "Hayden", "Jessica", "Kayloc", "Tetsedah", "Soultrax", "Tsoul", "Anathros", "Sathson"])
+
+    randomname = random.choice(nameslist)
+    nameslist.remove(randomname)
 
     #randomname = random.choice(nameslist)
     charclass = random.choice(charclasses)

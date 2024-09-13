@@ -53,6 +53,16 @@ class Item:
             for item in inventory.items:
                   if id == item.itemid:
                         return item
+                  
+      def display_stats(item, option = 0):
+            display_stats = [f'Item: {item.name}',
+                    f'Damage:\t{item.damagerange}',
+                    f'Value:\t{item.value}',
+                    ]
+            
+            if option == 1:
+                  pass
+
 
 
 

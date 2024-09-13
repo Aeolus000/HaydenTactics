@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 
 import Unit
 import Stats
+import Items
 
 
 
@@ -123,8 +124,119 @@ class UnitGUI(QWidget):
 
 
 
+
+class InventoryGUI(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Inventory Management")
+
+
+        self.unit_list = QListWidget(self)
+        self.inventory_list = QListWidget(self)
+        self.unit_equip_list = QListWidget(self)
+        self.item_stats_label = QLabel("Item Stats", self)
+        self.equip_button = QPushButton("Equip Item", self)
+        self.unequip_button = QPushButton("Unequip Item", self)
+
+        self.inventory_label = QLabel("Inventory", self)
+        self.unit_list_label = QLabel("Unit List", self)
+        self.unit_equip_label = QLabel("Unit Equipment", self)
+
+        self.initUI()
+
+    def initUI(self):
+
+        grid = QGridLayout()
+
+        grid.addWidget(self.unit_list, 1, 0)
+        grid.addWidget(self.unit_equip_list, 1, 1)
+        grid.addWidget(self.inventory_list, 1, 2)
+        grid.addWidget(self.item_stats_label, 1, 3)
+        grid.addWidget(self.equip_button, 2, 1)
+        grid.addWidget(self.unequip_button, 3, 1)
+
+        grid.addWidget(self.unit_list_label, 0, 0)
+        grid.addWidget(self.unit_equip_label, 0, 1)
+        grid.addWidget(self.inventory_label, 0, 2)
+
+        self.unit_list_label.setAlignment(Qt.AlignCenter)
+        self.inventory_label.setAlignment(Qt.AlignCenter)
+        self.unit_equip_label.setAlignment(Qt.AlignCenter)
+
+        self.setLayout(grid)
+        
+        ## testing by creating a bunch of stuff
+        Unit.generate_random_unit()
+        Unit.generate_random_unit()
+        unittest = Unit.generate_random_unit()
+        inventory = Items.Inventory(50)
+        weapon = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
+        inventory.items.append(weapon)
+        weapon.equip(unittest, 1, inventory)
+
+
+
+        self.unit_list.itemClicked.connect(self.selection_changed)
+
+        self.refresh_unit_list()
+
+
+    def refresh_unit_list(self):
+        self.unit_list.clear()
+        for unit in Unit.unitlist:
+            self.unit_list.addItem(f"{unit.id} {unit.name}")
+
+    def refresh_equipment_list(self):
+        self.unit_equip_list.clear()
+        unit = self.get_selected_unit()
+        
+        # for unit in Unit.unitlist:
+        if unit.weaponslot1:
+            self.unit_equip_list.addItem(f"Weapon Slot 1: {unit.weaponslot1.name}")
+        if unit.weaponslot2:
+            self.unit_equip_list.addItem(f"Weapon Slot 2: {unit.weaponslot2.name}")
+        if unit.weaponslot3:
+            self.unit_equip_list.addItem(f"Weapon Slot 3: {unit.weaponslot3.name}")
+
+    def get_selected_unit(self):
+
+        item = self.unit_list.currentItem()
+
+        unit_id = int(item.text().split(' ')[0])
+        unit = Unit.get_unit_by_id(unit_id)
+
+        return unit
+    
+    # def get_selected_equipment(self):
+
+    #     equipment = self.unit_equip_list.currentItem()
+
+    #     item_id = int(item.text().split(' ')[0])
+    #     unit = Unit.get_unit_by_id(unit_id)
+
+    #     return unit
+    
+    def selection_changed(self):
+
+        unit = self.get_selected_unit()
+
+        item_stats = Unit.display_unit(unit, 3)
+
+        self.item_stats_label.setText(item_stats)
+
+        self.refresh_equipment_list()
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     unit_gui = UnitGUI()
-    unit_gui.show()
+    inventory_gui = InventoryGUI()
+    inventory_gui.show()
+    #unit_gui.show()
     sys.exit(app.exec_())
