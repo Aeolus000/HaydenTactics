@@ -56,6 +56,8 @@ class UnitGUI(QWidget):
         self.dismiss_unit_button.setDisabled(True)
         self.dismiss_unit_button.clicked.connect(self.dismiss_unit)
 
+        self.refresh_unit_list()
+
 
 
 
@@ -252,8 +254,6 @@ class InventoryGUI(QWidget):
 
         unit = self.get_selected_unit()
         weapon = self.get_selected_equipment()
-        print(unit)
-        print(weapon)
 
         Items.Weapon.unequip(unit, 1, items_inventory)
 
