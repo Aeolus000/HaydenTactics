@@ -112,9 +112,10 @@ def display_unit(unit, option = 0):
         if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
 
     if option == 3:
-        if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
-        if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
-        if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
+        display_stats.append(f'\n')
+        if unit.weaponslot1: display_stats.append(f'Weapon Slot 1: {unit.weaponslot1.name}')
+        if unit.weaponslot2: display_stats.append(f'Weapon Slot 2: {unit.weaponslot2.name}')
+        if unit.weaponslot3: display_stats.append(f'Weapon Slot 3: {unit.weaponslot3.name}')
             
 
 
@@ -210,21 +211,7 @@ def generate_random_unit():
     randomname = random.choice(nameslist)
     nameslist.remove(randomname)
 
-    #randomname = random.choice(nameslist)
     charclass = random.choice(charclasses)
-
-
-
-#    validname = False
-
-#    if validname == False:
-#        for unit in unitlist:
-#            if randomname == unit.name:
-#                randomname = random.choices(names)
-#                print(f"{randomname} already taken.")
-#            else:
-#                print(f"{randomname}")
-#                validname = True
 
     randomunit = Unit(randomname, charclass, 1)
     unitlist.append(randomunit)

@@ -1,4 +1,4 @@
-
+import Unit
 
 handed = ("onehanded", "twohanded")
 damagetype = ("Slashing", "Piercing", "Crushing")
@@ -42,11 +42,11 @@ class Item:
             Item.lastknownitemid += 1
             self.itemid = Item.lastknownitemid
 
-      def equip(item, unit, slot):
-            pass
+      #def equip(item, unit, slot):
+      #      pass
 
-      def unequip(item, unit, slot):
-            pass
+      #def unequip(item, unit, slot):
+      #      pass
 
 
       def get_item_by_id(id, inventory):
@@ -55,10 +55,10 @@ class Item:
                         return item
                   
       def display_stats(item, option = 0):
-            display_stats = [f'ID: {item.itemid}',
-                    f'Name: {item.name}',
-                    f'Damage:\t{item.damagerange}',
-                    f'Value:\t{item.value}',
+            display_stats = [f'Item ID: {item.itemid}',
+                    f'Name:\t{item.name}',
+                    f'Damage:\t\t{item.damagerange}',
+                    f'Value:\t\t{item.value}',
                     ]
             
             if option == 1:
@@ -97,6 +97,19 @@ class Weapon(Item):
 
                   inventory.items.append(slot)
                   unit.weaponslot2 = None
+
+      def get_equipped_unit(itemid):
+
+            for unit in Unit.unitlist:
+                  if unit.weaponslot1 == itemid:
+                        equipment = unit.weaponslot1
+                  elif unit.weaponslot2 == itemid:
+                        equipment = unit.weaponslot2
+                  elif unit.weaponslot3 == itemid:
+                        equipment = unit.weaponslot3
+            
+            return equipment
+
             
             
             
