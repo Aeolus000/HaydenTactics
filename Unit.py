@@ -59,13 +59,13 @@ class Unit:
     def get_equipment_as_dict(self):
 
         return {
-                        'Weapon Slot 1': self.weaponslot1,
-                        'Weapon Slot 2': self.weaponslot2,
-                        'Weapon Slot 3': self.weaponslot3,
-                        'Helmet': self.helmetslot,
-                        'Armor': self.armorslot,
-                        'Legs': self.legslot,
-                        'Rings': self.ringslot,
+                        'weaponslot1': self.weaponslot1,
+                        'weaponslot2': self.weaponslot2,
+                        'weaponslot3': self.weaponslot3,
+                        'helmetslot': self.helmetslot,
+                        'armorslot': self.armorslot,
+                        'legslot': self.legslot,
+                        'ringslot': self.ringslot,
                             }
         
 
@@ -133,10 +133,6 @@ def display_unit(unit, option = 0):
 
 
     return '\n'.join(display_stats)
-
-
-
-
 
 def get_weapon_id(unit, slot):
 

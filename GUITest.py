@@ -172,14 +172,20 @@ class InventoryGUI(QWidget):
 
         self.setLayout(grid)
 
-
         self.unit_list.itemClicked.connect(self.selection_changed_unit_list)
         self.unit_equip_list.itemClicked.connect(self.selection_changed_equipment_list)
+        self.inventory_list.itemClicked.connect(self.selection_changed_inventory_list)
 
-        self.refresh_unit_list()
 
         self.unequip_button.setDisabled(True)
-        self.unequip_button.clicked.connect(self.unequip_weapon)
+        self.unequip_button.clicked.connect(self.unequip_equipment)
+
+
+        self.refresh_equipment_list()
+        self.refresh_inventory_list()
+        self.refresh_unit_list()
+
+
 
 
     def refresh_unit_list(self):
@@ -189,14 +195,15 @@ class InventoryGUI(QWidget):
 
     def refresh_equipment_list(self):
         self.unit_equip_list.clear()
-        unit = self.get_selected_unit()
+        if self.unit_list.currentItem():
+            unit = self.get_selected_unit()
         
 
-        unit_equipment = unit.get_equipment_as_dict()
+            unit_equipment = unit.get_equipment_as_dict()
 
-        for item in unit_equipment.values():
-            if item:
-                self.unit_equip_list.addItem(f"{item.name}")
+            for item in unit_equipment.values():
+                if item:
+                    self.unit_equip_list.addItem(f"{item.name}")
 
 
     def refresh_inventory_list(self):
@@ -235,11 +242,25 @@ class InventoryGUI(QWidget):
 
         return selected_equipment
     
+    def get_selected_inventory_item(self):
+        
+        inv_item = self.inventory_list.currentItem()
+        inv_item = inv_item.data(2)
+
+        for item in items_inventory.items:
+            if inv_item == item.name:
+                inv_item = item
+
+
+
+        return inv_item
+    
     def selection_changed_unit_list(self):
 
         unit = self.get_selected_unit()
         self.item_stats_label.setText(Unit.display_unit(unit, 3))
         self.refresh_equipment_list()
+        self.refresh_inventory_list()
 
 
     def selection_changed_equipment_list(self):
@@ -252,22 +273,40 @@ class InventoryGUI(QWidget):
             equipment = self.get_selected_equipment()
             self.item_stats_label.setText(equipment.display_stats(equipment))
             self.refresh_inventory_list()
+
+    def selection_changed_inventory_list(self):
+
+        if self.inventory_list.currentItem() == None:
+            self.equip_button.setDisabled(True)
+
+        else:
+            self.equip_button.setDisabled(False)
+            inv_item = self.get_selected_inventory_item()
+            self.item_stats_label.setText(inv_item.display_stats(inv_item))
         
 
 
         
         
-        #print(equipment)
+    def equip_equipment(self):
+        pass
 
-    def unequip_weapon(self):
+    def unequip_equipment(self):
 
         unit = self.get_selected_unit()
-        weapon = self.get_selected_equipment()
+        item = self.get_selected_equipment()
 
-        Items.Weapon.unequip(unit, 1, items_inventory)
+        #print(item.slot_type)
+
+        item.unequip(unit, item.slot_type, items_inventory)
+
+        #print(item.slot_type)
 
         self.selection_changed_unit_list()
         self.unequip_button.setDisabled(True)
+
+        self.refresh_inventory_list()
+        self.refresh_equipment_list()
 
 
 
@@ -290,7 +329,11 @@ if __name__ == '__main__':
     weapon2 = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
     items_inventory.items.append(weapon)
     items_inventory.items.append(weapon2)
-    weapon.equip(unittest, 1, items_inventory)
+    weapon.equip(unittest, "weaponslot3", items_inventory)
+
+    armor = Items.Armor("Armor lol", 1, 1, "Blah")
+    items_inventory.items.append(armor)
+    armor.equip(unittest, "armorslot", items_inventory)
 
 
 
