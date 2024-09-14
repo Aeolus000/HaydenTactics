@@ -49,13 +49,19 @@ class Item:
       #      pass
 
 
-      def get_item_by_id(id, inventory):
-            for item in inventory.items:
-                  if id == item.itemid:
-                        return item
+      def get_item_by_id(id, inventory = None, unit = None):
+            if inventory:
+                  for item in inventory.items:
+                        if id == item.itemid:
+                              return item
+            elif unit:
+                  for unit in Unit.unitlist:
+                        if id == unit.weaponslot1.itemid:
+                              return unit.weaponslot1
+
                   
       def display_stats(item, option = 0):
-            display_stats = [f'Item ID: {item.itemid}',
+            display_stats = [
                     f'Name:\t{item.name}',
                     f'Damage:\t\t{item.damagerange}',
                     f'Value:\t\t{item.value}',

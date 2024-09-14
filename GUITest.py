@@ -121,8 +121,10 @@ class UnitGUI(QWidget):
         Unit.unitlist.remove(unit)
 
         self.refresh_unit_list()
+        inventory_gui.refresh_unit_list()
 
         self.list1.setCurrentItem(None)
+        self.unit_stats.clear()
         self.dismiss_unit_button.setDisabled(True)
         self.level_up_button.setDisabled(True)
 
@@ -189,19 +191,19 @@ class InventoryGUI(QWidget):
         self.unit_equip_list.clear()
         unit = self.get_selected_unit()
         
-        # for unit in Unit.unitlist:
-        if unit.weaponslot1:
-            self.unit_equip_list.addItem(f"{unit.weaponslot1.itemid} {unit.weaponslot1.name}")
-        if unit.weaponslot2:
-            self.unit_equip_list.addItem(f"{unit.weaponslot1.itemid} {unit.weaponslot2.name}")
-        if unit.weaponslot3:
-            self.unit_equip_list.addItem(f"{unit.weaponslot1.itemid} {unit.weaponslot3.name}")
+
+        unit_equipment = unit.get_equipment_as_dict()
+
+        for item in unit_equipment.values():
+            if item:
+                self.unit_equip_list.addItem(f"{item.name}")
+
 
     def refresh_inventory_list(self):
         self.inventory_list.clear()
         #inventory = items_inventory
         for item in items_inventory.items:
-            self.inventory_list.addItem(f"{item.itemid} {item.name}")
+            self.inventory_list.addItem(f"{item.name}")
 
     def get_selected_unit(self):
 
@@ -214,17 +216,24 @@ class InventoryGUI(QWidget):
     
     def get_selected_equipment(self):
 
-        equipment_selection = self.unit_equip_list.currentItem()
+        unit = self.get_selected_unit()
+        #print(unit)
 
-        item_id = int(equipment_selection.text().split(' ')[0])
+        selected_equipment = self.unit_equip_list.currentItem()
 
-        for unit in Unit.unitlist:
-            if unit.weaponslot1:
-                if unit.weaponslot1.itemid == item_id:
-                    equipment = unit.weaponslot1
-                    print(equipment)
+        selected_equipment = selected_equipment.data(2)
+        #print(selected_equipment)                                        # selected_equipment is "Iron Short Sword" as a string
 
-        return equipment
+        unit_equipment = unit.get_equipment_as_dict()
+
+        for item in unit_equipment.values():
+            if item:
+                if item.name == selected_equipment:
+                    selected_equipment = item      
+                    #print(selected_equipment)                            # selected_equipment is becoming the Weapon object, because it's Weapon.name is matching the string from the ListItem Object
+
+
+        return selected_equipment
     
     def selection_changed_unit_list(self):
 
