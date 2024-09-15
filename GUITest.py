@@ -84,6 +84,10 @@ class UnitGUI(QWidget):
         else:
             self.level_up_button.setDisabled(False)
 
+        inventory_gui.refresh_all()
+        inventory_gui.unequip_button.setDisabled(True)
+        inventory_gui.equip_button.setDisabled(True)
+        
         self.sync_window_selections()
 
         
@@ -104,7 +108,6 @@ class UnitGUI(QWidget):
 
     def display_random_unit(self):
         unit = Unit.generate_random_unit()
-        #print(f"created {unit.name}")
 
         self.refresh_unit_list()
         inventory_gui.refresh_unit_list()
@@ -143,12 +146,13 @@ class UnitGUI(QWidget):
         for i in self.list1.findItems("*", Qt.MatchWildcard):                           # i is getting objects
             if i.text() == selection.text():
                 select1 = i.text()
-                print(select1)
+                #print(select1)
 
 
         for i in inventory_gui.unit_list.findItems("*", Qt.MatchWildcard):
             if select1 == i.text():
                 inventory_gui.unit_list.setCurrentItem(i)
+                inventory_gui.unit_list.clicked
 
 
         # for i in inventory_gui.unit_list.findItems("*", Qt.MatchWildcard):
@@ -313,7 +317,7 @@ class InventoryGUI(QWidget):
         #             selected_equipment = item      
         #             print(selected_equipment)                            # selected_equipment is becoming the Weapon object, because it's Weapon.name is matching the string from the ListItem Object
 
-        print(selected_equipment)
+        #print(selected_equipment)
         return selected_equipment
     
     def get_selected_inventory_item(self):
@@ -394,8 +398,8 @@ class InventoryGUI(QWidget):
         equipment_itemid_list = []
 
 
-        print(item)
-        print(unit.name)
+        #print(item)
+        #print(unit.name)
 
         if item.item_type == "weapon":
 
@@ -434,6 +438,7 @@ class InventoryGUI(QWidget):
         print(item.slot_type)
 
         self.selection_changed_unit_list()
+        self.equip_button.setDisabled(True)
         self.unequip_button.setDisabled(True)
 
         self.refresh_inventory_list()
