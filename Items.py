@@ -3,7 +3,7 @@ import Stats
 
 handed = ("onehanded", "twohanded")
 damagetype = ("Slashing", "Piercing", "Crushing")
-
+armortype = ("Cloth", "Leather", "Mail", "Plate")
 
 
 
@@ -36,11 +36,12 @@ class Item:
       slot_types = ("weaponslot1", "weaponslot2", "weaponslot3", "helmetslot", "armorslot", "legslot", "ringslot")
       lastknownitemid = 0
 
-      def __init__(self, name, weight, value):
+      def __init__(self, name, weight, value, item_type):
             self.name = name
             self.weight = weight
             self.value = value
             self.slot_type = ""
+            self.item_type = item_type
 
 
 
@@ -65,15 +66,17 @@ class Item:
                   if key == slot_type:
                         if value == None:
                               setattr(unit, slot_type, self)
+                              inventory.items.remove(self)
+                              self.slot_type = slot_type
+
                               
                         else:
                               print("slot already taken")
-            
+                              pass
 
-            self.slot_type = slot_type
             #print(self.slot_type)
             #print(slot_type)
-            inventory.items.remove(self)
+
 
 
       def unequip(self, unit, slot_type, inventory):
@@ -99,20 +102,28 @@ class Item:
 
 
       def get_item_by_id(id, inventory = None, unit = None):
+
+
             if inventory:
                   for item in inventory.items:
                         if id == item.itemid:
                               return item
-            elif unit:
-                  for unit in Unit.unitlist:
-                        if id == unit.weaponslot1.itemid:
-                              return unit.weaponslot1
+                        
+            if unit:
+                  equip_list = unit.get_equipment_as_dict()
+                  print(f"GET_ITEM_BY_ID\n {equip_list}")
+
+                  for value in equip_list.values():
+                        if value:
+                              if id == value.itemid:
+                                    return value
+
 
                   
-      def display_stats(item, option = 0):
-            display_stats = [f'Item ID: {item.itemid}',
-                    f'Name:\t{item.name}',
-                    f'Value:\t\t{item.value}',
+      def display_stats(self, option = 0):
+            display_stats = [f'Item ID: {self.itemid}',
+                    f'Name:\t{self.name}',
+                    f'Value:\t\t{self.value}',
                     ]
             
             if option == 1:
@@ -125,12 +136,13 @@ class Item:
 
 class Weapon(Item):
 
-      def __init__(self, name, weight, value, handed, damagetype, damagerange):
-            super().__init__(name, weight, value)
+      def __init__(self, name, weight, value, handed, damagetype, damagerange, item_type = "weapon"):
+            super().__init__(name, weight, value, item_type)
             self.handed = handed
             self.damagetype = damagetype
             self.damagerange = damagerange
-            self.slot_type = ""
+            self.slot_type = "weaponslot"
+            self.item_type = item_type
   
 
 
@@ -138,13 +150,14 @@ class Weapon(Item):
 
 class Armor(Item):
 
-      def __init__(self, name, weight, value, armortype, slashingreduction = 0, piercingreduction = 0, crushingreduction = 0):
-            super().__init__(name, weight, value)
+      def __init__(self, name, weight, item_type, value, armortype, slashingreduction = 0, piercingreduction = 0, crushingreduction = 0):
+            super().__init__(name, weight, value, item_type)
             self.armortype = armortype
             self.slashingreduction = slashingreduction
             self.piercingreduction = piercingreduction
             self.crushingreduction = crushingreduction
-            self.slot_type = ""
+            self.slot_type = ["helmetslot", "armorslot", "legslot", "ringslot"]
+            self.item_type = "armor"
 
 
 

@@ -67,7 +67,34 @@ class Unit:
                         'legslot': self.legslot,
                         'ringslot': self.ringslot,
                             }
-        
+    
+    def get_damage_reduction(self):
+        damage_reduction = (self.basePhysicalResistance / 100)
+        return damage_reduction
+    
+    def get_melee_damage(self):
+        weapon_damage = 0
+        if self.weaponslot1:
+            weapon_damage = self.weaponslot1.damagerange
+        melee_damage = (self.baseStrength / 2) + (self.baseDexterity / 4) + weapon_damage 
+        return round(melee_damage)
+    
+    def refresh_stats(self):
+
+        self.maxHP = 75 + (4 * self.baseVitality)
+        self.currentHP = self.maxHP
+
+        self.maxMana = 10 + (2 * self.baseMind)
+        self.currentMana = self.maxMana
+
+        self.melee_hit_chance = 70 + (self.baseDexterity / 5)
+        self.ranged_hit_chance = 50 + (self.baseDexterity / 4)
+
+        self.basePhysicalResistance = (self.baseConstitution * 0.5)
+        self.baseMagicalResistance = (self.baseResistance * 0.5)
+
+        self.baseEvasion = 0
+        self.baseBlockChance = 0
 
 
 
@@ -76,20 +103,13 @@ def get_unit_by_id(id):
         if id == unit.id:
             return unit
 
-def get_melee_damage(unit):
-    weapon_damage = 0
-    if unit.weaponslot1:
-        weapon_damage = unit.weaponslot1.damagerange
-    melee_damage = (unit.baseStrength / 2) + (unit.baseDexterity / 4) + weapon_damage 
-    return round(melee_damage)
 
-def get_damage_reduction(unit):
-    damage_reduction = (unit.basePhysicalResistance / 100)
-    return damage_reduction
+
+
 
 def damage_calc(attacker, opponent):
 
-    finaldamage = get_melee_damage(attacker) - (get_melee_damage(attacker) * get_damage_reduction(opponent))
+    finaldamage = attacker.get_melee_damage - (attacker.get_melee_damage() * opponent.get_damage_reduction())
     return round(finaldamage)
 
 def display_unit(unit, option = 0):
@@ -115,7 +135,7 @@ def display_unit(unit, option = 0):
         display_stats.append(f"Intelligence:\t{unit.baseIntelligence}")
         display_stats.append(f"Mind:\t\t{unit.baseMind}")
         display_stats.append(f"Resistance:\t{unit.baseResistance}")
-        display_stats.append(f"\nMelee Damage:\t{get_melee_damage(unit)}")
+        display_stats.append(f"\nMelee Damage:\t{unit.get_melee_damage()}")
         display_stats.append(f"Melee Hit Chance:\t{(get_hit_chance(unit, None, False))}%")
         display_stats.append(f"Ranged Hit Chance:{(get_hit_chance(unit, None, True))}%")
         display_stats.append(f"\nPhysical Damage Reduction:\t{unit.basePhysicalResistance}%")
@@ -133,17 +153,6 @@ def display_unit(unit, option = 0):
 
 
     return '\n'.join(display_stats)
-
-def get_weapon_id(unit, slot):
-
-    if slot == 1:
-        weapon_id = unit.weaponslot1.itemid
-    if slot == 2:
-        weapon_id = unit.weaponslot2.itemid
-    if slot == 3:
-        weapon_id = unit.weaponslot3.itemid
-
-    return weapon_id
     
     
 def level_up(unit):
@@ -155,26 +164,11 @@ def level_up(unit):
         setattr(unit, key, unit_current_stat + value)
 
     unit.level += 1
-    refresh_stats(unit)
+    unit.refresh_stats()
 
     #print(f"{unit.name} leveled up to Level {unit.level}!")
 
-def refresh_stats(unit):
 
-    unit.maxHP = 75 + (4 * unit.baseVitality)
-    unit.currentHP = unit.maxHP
-
-    unit.maxMana = 10 + (2 * unit.baseMind)
-    unit.currentMana = unit.maxMana
-
-    unit.melee_hit_chance = 70 + (0.25 * unit.baseDexterity)
-    unit.ranged_hit_chance = 50 + (0.25 * unit.baseDexterity)
-
-    unit.basePhysicalResistance = (unit.baseConstitution * 0.5)
-    unit.baseMagicalResistance = (unit.baseResistance * 0.5)
-
-    unit.baseEvasion = 0
-    unit.baseBlockChance = 0
 
 def get_hit_chance(attacker, opponent = None, is_ranged = False):
 
