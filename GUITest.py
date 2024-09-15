@@ -1,4 +1,6 @@
 import sys
+import sqlite3
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -9,18 +11,92 @@ import Items
 
 
 
+class CharacterCreation(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Character Creation")
+        self.setGeometry(500, 500, 500, 500)
+
+        #self.initUI()
+
+
+
+    def initUI(self):
+
+        widget = QWidget(self)
+
+
+        layout = QGridLayout()
+
+        character_stats = QLabel("Placeholder, blah blah blah lots of stats")
+
+        character_name = QLineEdit()
+        character_name_accept = QPushButton("Confirm New Character")
+        character_name_label = QLabel("Enter Character Name:")
+
+        reroll_button = QPushButton("Reroll Stats")
+        cancel_button = QPushButton("Cancel")
+
+        character_classes = QComboBox()
+        #character_classes.setGeometry(100, 10, 200, 40)
+
+
+
+        layout.addWidget(character_name, 1, 0, Qt.AlignCenter)
+        layout.addWidget(character_name_label, 0, 0, Qt.AlignCenter)
+        layout.addWidget(reroll_button, 3, 0, Qt.AlignCenter)
+        layout.addWidget(cancel_button, 3, 1, Qt.AlignCenter)
+        layout.addWidget(character_stats, 2, 0, Qt.AlignTop)
+        layout.addWidget(character_classes, 1, 1, Qt.AlignCenter)
+        layout.addWidget(character_name_accept, 1, 2, Qt.AlignCenter)
+
+        #layout.setColumnMinimumWidth(1, 60)
+        layout.verticalSpacing()
+        widget.setLayout(layout)
+
+        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        character_classes.setSizePolicy(size_policy)
+        character_name.setSizePolicy(size_policy)
+        character_stats.setSizePolicy(size_policy)
+        character_name_label.setSizePolicy(size_policy)
+        reroll_button.setSizePolicy(size_policy)
+        cancel_button.setSizePolicy(size_policy)
+
+        self.show()
+
+        charclass_index = []
+
+        for i in Unit.charclasses:
+            character_classes.addItem(i)
+            charclass_index.append(i)
+
+        print(charclass_index)
+
+
+
+        
+        
+         
+
+
+
 class UnitGUI(QWidget):
     def __init__(self):
         super().__init__()
         #self.setGeometry(700, 300, 500, 500)
         self.list1 = QListWidget(self)
         self.unit_stats = QLabel(self)
-        self.button = QPushButton("Create Random Character", self)
+        self.button = QPushButton("Generate Random Character", self)
+
         self.level_up_button = QPushButton("Level Up", self)
         self.dismiss_unit_button = QPushButton("Dismiss Unit", self)
         self.message = QLabel(self)
         #self.confirm_dismiss_button = QDialogButtonBox(self)
         #self.exit = QPushButton("Exit", self)
+
+        self.create_character_button = QPushButton("Create Character", self)
+        self.character_creation_popup = CharacterCreation()
 
         self.initUI()
         
@@ -33,6 +109,7 @@ class UnitGUI(QWidget):
         grid = QGridLayout()
         grid.addWidget(self.list1, 0, 0)
         grid.addWidget(self.button)
+        grid.addWidget(self.create_character_button, 2, 0)
         grid.addWidget(self.unit_stats, 0, 1)
         #grid.addWidget(self.exit)
         grid.addWidget(self.level_up_button, 1, 1)
@@ -55,6 +132,8 @@ class UnitGUI(QWidget):
 
         self.dismiss_unit_button.setDisabled(True)
         self.dismiss_unit_button.clicked.connect(self.dismiss_unit)
+
+        self.create_character_button.clicked.connect(self.display_created_unit)
 
         self.refresh_unit_list()
 
@@ -114,6 +193,16 @@ class UnitGUI(QWidget):
 
         self.dismiss_unit_button.setDisabled(True)
         self.level_up_button.setDisabled(True)
+
+    def display_created_unit(self):
+        
+        character_creation.initUI()
+
+        
+
+
+
+
 
     def display_level_up(self):
         unit = self.get_selected_unit()
@@ -184,6 +273,7 @@ class InventoryGUI(QWidget):
         super().__init__()
 
         self.setWindowTitle("Inventory Management")
+        self.move(100, 100)
 
 
         self.unit_list = QListWidget(self)
@@ -484,4 +574,5 @@ if __name__ == '__main__':
     unit_gui.show()
     inventory_gui = InventoryGUI()
     inventory_gui.show()
+    character_creation = CharacterCreation()
     sys.exit(app.exec_())
