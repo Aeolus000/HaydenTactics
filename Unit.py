@@ -105,6 +105,20 @@ def get_unit_by_id(id):
     for unit in unitlist:
         if id == unit.id:
             return unit
+        
+def generate_stat_roll():
+
+    return {
+    'baseStrength': 10 + random.randrange(-2, 3),
+    'baseDexterity': 10 + random.randrange(-2, 3),
+    'baseSpeed': 10 + random.randrange(-2, 3), 
+    'baseVitality': 10 + random.randrange(-2, 3),
+    'baseConstitution': 10 + random.randrange(-2, 3),
+    'baseIntelligence': 10 + random.randrange(-2, 3),
+    'baseMind': 10 + random.randrange(-2, 3),
+    'baseResistance': 10 + random.randrange(-2, 3),
+    }
+    
 
 
 
@@ -228,11 +242,4 @@ def generate_random_unit():
     randomunit = Unit(randomname, charclass, 1)
     unitlist.append(randomunit)
     return randomunit
-
-
-
-
-
-
-
 

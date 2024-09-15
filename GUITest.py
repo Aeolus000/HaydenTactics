@@ -16,7 +16,16 @@ class CharacterCreation(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Character Creation")
-        self.setGeometry(500, 500, 500, 500)
+        self.setGeometry(500, 500, 200, 200)
+
+        self.character_stats = QLabel("Placeholderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+        self.character_classes = QComboBox(self)
+        self.character_name = QLineEdit("Enter Name")
+        self.character_name_accept = QPushButton("Finalize")
+        #self.character_name_label = QLabel("Enter Character Name:")
+
+        self.reroll_button = QPushButton("Reroll Stats")
+        self.cancel_button = QPushButton("Cancel")
 
         #self.initUI()
 
@@ -24,54 +33,80 @@ class CharacterCreation(QWidget):
 
     def initUI(self):
 
-        widget = QWidget(self)
+        self.setWindowTitle("Character Creation")
+        grid = QGridLayout()
+        grid2 = QGridLayout()
+        hbox = QVBoxLayout()
+
+        #hbox.addStretch()
 
 
-        layout = QGridLayout()
-
-        character_stats = QLabel("Placeholder, blah blah blah lots of stats")
-
-        character_name = QLineEdit()
-        character_name_accept = QPushButton("Confirm New Character")
-        character_name_label = QLabel("Enter Character Name:")
-
-        reroll_button = QPushButton("Reroll Stats")
-        cancel_button = QPushButton("Cancel")
-
-        character_classes = QComboBox()
-        #character_classes.setGeometry(100, 10, 200, 40)
+        #self.character_classes.setGeometry(0, 0, 200, 50)
 
 
 
-        layout.addWidget(character_name, 1, 0, Qt.AlignCenter)
-        layout.addWidget(character_name_label, 0, 0, Qt.AlignCenter)
-        layout.addWidget(reroll_button, 3, 0, Qt.AlignCenter)
-        layout.addWidget(cancel_button, 3, 1, Qt.AlignCenter)
-        layout.addWidget(character_stats, 2, 0, Qt.AlignTop)
-        layout.addWidget(character_classes, 1, 1, Qt.AlignCenter)
-        layout.addWidget(character_name_accept, 1, 2, Qt.AlignCenter)
 
-        #layout.setColumnMinimumWidth(1, 60)
-        layout.verticalSpacing()
-        widget.setLayout(layout)
+        grid.addWidget(self.character_name, 0, 0, Qt.AlignLeft)
+        self.character_name.setFixedSize(150, 20)
+        self.character_name.placeholderText()
+        grid.addWidget(self.character_classes, 0, 1, Qt.AlignLeft)
+        self.character_classes.setFixedSize(150, 20)
+        #grid.addWidget(self.character_name_label, 0, 0)
+        grid.addWidget(self.character_stats, 1, 0, Qt.AlignLeft)
+        self.character_stats.setMaximumWidth(200)
 
-        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        character_classes.setSizePolicy(size_policy)
-        character_name.setSizePolicy(size_policy)
-        character_stats.setSizePolicy(size_policy)
-        character_name_label.setSizePolicy(size_policy)
-        reroll_button.setSizePolicy(size_policy)
-        cancel_button.setSizePolicy(size_policy)
+        grid.addWidget(self.reroll_button, 3, 0, Qt.AlignLeft)
+
+        grid2.addWidget(self.character_name_accept, 0, 0)
+        grid2.addWidget(self.cancel_button, 0, 1)
+
+
+        self.setLayout(hbox)
+
+        hbox.addLayout(grid)
+        hbox.addLayout(grid2)
+        hbox.addStretch()
+
+
+
+
 
         self.show()
+
+        self.character_stats.setWordWrap(True)
 
         charclass_index = []
 
         for i in Unit.charclasses:
-            character_classes.addItem(i)
+            self.character_classes.addItem(i)
             charclass_index.append(i)
 
-        print(charclass_index)
+
+
+
+        self.character_name.selectionChanged.connect(self.text_edited)
+
+
+    def text_edited(self):
+        self.character_name.clear()
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+        
 
 
 
@@ -84,7 +119,6 @@ class CharacterCreation(QWidget):
 class UnitGUI(QWidget):
     def __init__(self):
         super().__init__()
-        #self.setGeometry(700, 300, 500, 500)
         self.list1 = QListWidget(self)
         self.unit_stats = QLabel(self)
         self.button = QPushButton("Generate Random Character", self)
@@ -92,11 +126,8 @@ class UnitGUI(QWidget):
         self.level_up_button = QPushButton("Level Up", self)
         self.dismiss_unit_button = QPushButton("Dismiss Unit", self)
         self.message = QLabel(self)
-        #self.confirm_dismiss_button = QDialogButtonBox(self)
-        #self.exit = QPushButton("Exit", self)
 
         self.create_character_button = QPushButton("Create Character", self)
-        self.character_creation_popup = CharacterCreation()
 
         self.initUI()
         
