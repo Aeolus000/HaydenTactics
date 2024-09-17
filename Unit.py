@@ -121,9 +121,6 @@ def generate_stat_roll():
     
 
 
-
-
-
 def damage_calc(attacker, opponent):
 
     finaldamage = attacker.get_melee_damage - (attacker.get_melee_damage() * opponent.get_damage_reduction())

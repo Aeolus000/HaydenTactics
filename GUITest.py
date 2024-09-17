@@ -18,7 +18,7 @@ class CharacterCreation(QWidget):
         self.setWindowTitle("Character Creation")
         self.setGeometry(500, 500, 200, 200)
 
-        self.character_stats = QLabel("Placeholderrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+        self.character_stats = QLabel()
         self.character_classes = QComboBox(self)
         self.character_name = QLineEdit("Enter Name")
         self.character_name_accept = QPushButton("Finalize")
@@ -33,17 +33,13 @@ class CharacterCreation(QWidget):
 
     def initUI(self):
 
+        self.charclass_index = []
+        self.unit_stats = []
+
         self.setWindowTitle("Character Creation")
         grid = QGridLayout()
         grid2 = QGridLayout()
         hbox = QVBoxLayout()
-
-        #hbox.addStretch()
-
-
-        #self.character_classes.setGeometry(0, 0, 200, 50)
-
-
 
 
         grid.addWidget(self.character_name, 0, 0, Qt.AlignLeft)
@@ -52,8 +48,8 @@ class CharacterCreation(QWidget):
         grid.addWidget(self.character_classes, 0, 1, Qt.AlignLeft)
         self.character_classes.setFixedSize(150, 20)
         #grid.addWidget(self.character_name_label, 0, 0)
-        grid.addWidget(self.character_stats, 1, 0, Qt.AlignLeft)
-        self.character_stats.setMaximumWidth(200)
+        grid.addWidget(self.character_stats, 1, 0, Qt.AlignLeft, 2)
+        self.character_stats.setMaximumWidth(300)
 
         grid.addWidget(self.reroll_button, 3, 0, Qt.AlignLeft)
 
@@ -69,51 +65,81 @@ class CharacterCreation(QWidget):
 
 
 
-
-
+        self.display_character_classes()
         self.show()
 
         self.character_stats.setWordWrap(True)
 
-        charclass_index = []
+        self.character_name.selectionChanged.connect(self.text_edited)
+
+        self.reroll_button.pressed.connect(self.display_reroll)
+
+        self.cancel_button.pressed.connect(self.cancel_window)
+
+        self.character_name_accept.pressed.connect(self.finalize)
+
+        self.display_reroll()
+
+    def display_character_classes(self):
+
+        self.character_classes.clear()
 
         for i in Unit.charclasses:
             self.character_classes.addItem(i)
-            charclass_index.append(i)
-
-
-
-
-        self.character_name.selectionChanged.connect(self.text_edited)
+            self.charclass_index.append(i)
 
 
     def text_edited(self):
         self.character_name.clear()
 
 
+    def display_reroll(self):
+
+        self.unit_stats = Unit.generate_stat_roll()
+
+        self.character_stats.setText(f"""\nStrength:\t\t{self.unit_stats['baseStrength']}\nDexterity:\t{self.unit_stats['baseDexterity']}\nSpeed:\t\t{self.unit_stats['baseSpeed']}\nVitality:\t\t{self.unit_stats['baseVitality']}\nConstitution:\t{self.unit_stats['baseConstitution']}\nIntelligence:\t{self.unit_stats['baseIntelligence']}\nMind:\t\t{self.unit_stats['baseMind']}\nResistance:\t{self.unit_stats['baseResistance']}""")
+        return self.unit_stats
+
+    def cancel_window(self):
+        self.hide()
+        unit_gui.create_character_button.setDisabled(False)
+
+    def finalize(self):
+
+        if not self.character_name.displayText():
+            self.character_name.setText("Can't be empty!")
+        else:
         
+            unit_name = self.character_name.text()
+            char_class_chosen = self.character_classes.currentIndex()
 
+            char_class = Unit.charclasses[char_class_chosen]
 
+            print(unit_name)
+            print(self.unit_stats)
+            print(char_class)
+            print(char_class_chosen)
 
+            unit = Unit.Unit(unit_name, char_class, 1)
 
+            for key, value in self.unit_stats.items():
+                setattr(unit, key, value)
 
+            Unit.unitlist.append(unit)
 
+            unit_gui.refresh_unit_list()
+            inventory_gui.refresh_all()
 
+            self.hide()
+            self.unit_stats.clear()
+            self.character_name.clear()
+            self.character_stats.clear()
 
+            unit_gui.create_character_button.setDisabled(False)
+            inventory_gui.equip_button.setDisabled(True)
+            inventory_gui.unequip_button.setDisabled(True)
 
-
-
-
-            
-
-        
-
-
-
-        
-        
-         
-
+            return unit
 
 
 class UnitGUI(QWidget):
@@ -208,10 +234,13 @@ class UnitGUI(QWidget):
 
     def get_selected_unit(self):
 
-        item = self.list1.currentItem()
+        #item = self.list1.currentItem()
 
-        unit_id = int(item.text().split(' ')[0])
-        unit = Unit.get_unit_by_id(unit_id)
+        selected = self.list1.currentRow()
+        unit = Unit.unitlist[selected]
+
+        #unit_id = int(item.text().split(' ')[0])                   ## getting the row (and using it as an index for the unit_list)is better than getting it by their name string,
+        #unit = Unit.get_unit_by_id(unit_id)                        ## because what happens if we have multiple units with the same name? It always gets the first unit in the list with that name. 
 
         return unit
         
@@ -227,7 +256,10 @@ class UnitGUI(QWidget):
 
     def display_created_unit(self):
         
-        character_creation.initUI()
+        character_creation.show()
+        character_creation.display_reroll()
+
+        self.create_character_button.setDisabled(True)
 
         
 
@@ -266,35 +298,11 @@ class UnitGUI(QWidget):
         for i in self.list1.findItems("*", Qt.MatchWildcard):                           # i is getting objects
             if i.text() == selection.text():
                 select1 = i.text()
-                #print(select1)
-
 
         for i in inventory_gui.unit_list.findItems("*", Qt.MatchWildcard):
             if select1 == i.text():
                 inventory_gui.unit_list.setCurrentItem(i)
                 inventory_gui.unit_list.clicked
-
-
-        # for i in inventory_gui.unit_list.findItems("*", Qt.MatchWildcard):
-        #     if i == select1:
-        #         select2 = i
-        #         print(select2)
-
-
-        
-        # inventory_gui.unit_list.setCurrentItem(select2)
-
-
-
-        # unit_list_item = self.list1.selectedItems()
-
-        # print(unit_list_item)
-
-        # unit_text = unit_list_item[0].text()
-
-        # print(unit_list_item[0])
-
-        # inventory_gui.unit_list.setCurrentItem(unit_text)
         
 
 
@@ -406,10 +414,6 @@ class InventoryGUI(QWidget):
 
         unit = self.get_selected_unit()
 
-        #selected_equipment = self.unit_equip_list.currentItem()
-
-        #selected_equipment = selected_equipment.data(2)
-
         selected_equipment = self.unit_equip_list.currentRow()
         print(selected_equipment)                                        # selected_equipment is "Iron Short Sword" as a string
 
@@ -428,17 +432,6 @@ class InventoryGUI(QWidget):
 
         selected_equipment = Items.Item.get_item_by_id(item_id, inventory=None, unit=unit)
         
-        # for item in unit_equipment.values():
-        #     if selected_equipment == unit_equip_indexes[item]:
-        #         selected_equipment = item
-
-        # for item in unit_equipment.values():
-        #     if item:
-        #         if item.name == selected_equipment:
-        #             selected_equipment = item      
-        #             print(selected_equipment)                            # selected_equipment is becoming the Weapon object, because it's Weapon.name is matching the string from the ListItem Object
-
-        #print(selected_equipment)
         return selected_equipment
     
     def get_selected_inventory_item(self):
@@ -456,19 +449,7 @@ class InventoryGUI(QWidget):
 
             item_id = inv_itemid_list[inv_list_index]
 
-            # i = 0
-            # for item in self.inventory_list.findItems("*", Qt.MatchWildcard):                           # i is getting objects
-            #     if item.text() == inv_item:
-            #         i += 1
-            #         inv_index = i - 1
-            #         #print(inv_index)
-
-            # inv_item = inv_itemid_list[inv_index]
-
-            #print(inv_item)
-
             item = Items.Item.get_item_by_id(item_id, inventory=items_inventory)
-            #print(items_inventory.items)
 
             print(item)
 
@@ -566,15 +547,6 @@ class InventoryGUI(QWidget):
         self.refresh_equipment_list()
 
 
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
 
     #unit_gui.show()
@@ -598,12 +570,12 @@ if __name__ == '__main__':
     items_inventory.items.append(armor)
     armor.equip(unittest, "armorslot", items_inventory)
 
-
-
     app = QApplication(sys.argv)
     unit_gui = UnitGUI()
     unit_gui.show()
     inventory_gui = InventoryGUI()
     inventory_gui.show()
     character_creation = CharacterCreation()
+    character_creation.initUI()
+    character_creation.hide()
     sys.exit(app.exec_())
