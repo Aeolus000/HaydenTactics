@@ -48,7 +48,6 @@ class Unit:
 
         Unit.lastknownid += 1
         self.id = Unit.lastknownid
-        
 
         self.weaponslot1 = None
         self.weaponslot2 = None

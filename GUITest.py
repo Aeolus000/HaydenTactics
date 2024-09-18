@@ -1,6 +1,6 @@
 import sys
 import sqlite3
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -33,6 +33,7 @@ class CharacterCreation(QWidget):
 
     def initUI(self):
 
+        self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint)
         self.charclass_index = []
         self.unit_stats = []
 
@@ -103,6 +104,7 @@ class CharacterCreation(QWidget):
     def cancel_window(self):
         self.hide()
         unit_gui.create_character_button.setDisabled(False)
+        inventory_gui.show()
 
     def finalize(self):
 
@@ -138,6 +140,8 @@ class CharacterCreation(QWidget):
             unit_gui.create_character_button.setDisabled(False)
             inventory_gui.equip_button.setDisabled(True)
             inventory_gui.unequip_button.setDisabled(True)
+
+            inventory_gui.show()
 
             return unit
 
@@ -196,9 +200,6 @@ class UnitGUI(QWidget):
 
         self.unit_stats.setAlignment(Qt.AlignTop)
 
-
-
-
     def selection_changed(self):
 
         unit = self.get_selected_unit()
@@ -224,7 +225,10 @@ class UnitGUI(QWidget):
         inventory_gui.unequip_button.setDisabled(True)
         inventory_gui.equip_button.setDisabled(True)
         
-        self.sync_window_selections()
+        if self.list1.currentRow() == inventory_gui.unit_list.currentRow():
+            pass
+        else:
+            self.sync_window_selections()
 
         
     def refresh_unit_list(self):
@@ -233,8 +237,6 @@ class UnitGUI(QWidget):
             self.list1.addItem(f"{unit.id} {unit.name}")
 
     def get_selected_unit(self):
-
-        #item = self.list1.currentItem()
 
         selected = self.list1.currentRow()
         unit = Unit.unitlist[selected]
@@ -260,11 +262,7 @@ class UnitGUI(QWidget):
         character_creation.display_reroll()
 
         self.create_character_button.setDisabled(True)
-
-        
-
-
-
+        inventory_gui.hide()
 
 
     def display_level_up(self):
@@ -303,9 +301,9 @@ class UnitGUI(QWidget):
             if select1 == i.text():
                 inventory_gui.unit_list.setCurrentItem(i)
                 inventory_gui.unit_list.clicked
+                inventory_gui.selection_changed_unit_list()
+                
         
-
-
 
 class InventoryGUI(QWidget):
     def __init__(self):
@@ -331,6 +329,8 @@ class InventoryGUI(QWidget):
         self.initUI()
 
     def initUI(self):
+
+        self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint)
 
         grid = QGridLayout()
 
@@ -465,6 +465,8 @@ class InventoryGUI(QWidget):
         self.refresh_inventory_list()
         self.unequip_button.setDisabled(True)
 
+        self.sync_window_selections()
+
 
     def selection_changed_equipment_list(self):
 
@@ -487,9 +489,17 @@ class InventoryGUI(QWidget):
             inv_item = self.get_selected_inventory_item()
             self.item_stats_label.setText(inv_item.display_stats())
             self.unit_equip_list.setCurrentItem(None)
+
+    def sync_window_selections(self):
+
+        selection = self.unit_list.currentRow()
+
+        unit_gui.list1.setCurrentRow(selection)
         
+        unit = Unit.unitlist[selection]
+        stats = Unit.display_unit(unit, 2)
 
-
+        unit_gui.unit_stats.setText(stats)
         
         
     def equip_equipment(self):
@@ -522,10 +532,12 @@ class InventoryGUI(QWidget):
 
         self.refresh_inventory_list()
         self.refresh_equipment_list()
-        unit_gui.refresh_unit_list()
+        self.sync_window_selections()
 
         self.equip_button.setDisabled(True)
         self.unequip_button.setDisabled(True)
+
+
 
         return equipment_itemid_list
 
@@ -545,7 +557,7 @@ class InventoryGUI(QWidget):
 
         self.refresh_inventory_list()
         self.refresh_equipment_list()
-
+        self.sync_window_selections()
 
 if __name__ == '__main__':
 
