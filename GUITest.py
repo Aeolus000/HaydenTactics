@@ -8,7 +8,11 @@ from PyQt5.QtWidgets import *
 import Unit
 import Stats
 import Items
+#from Models import Base
+import Models
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 
 class CharacterCreation(QWidget):
@@ -250,7 +254,22 @@ class UnitGUI(QWidget):
     def display_random_unit(self):
         unit = Unit.generate_random_unit()
 
+        with Session(engine) as session:
+
+            unit1 = Models.UnitTable(
+                unit_id=unit.unit_id,
+                name=unit.name,
+                charclass=unit.charclass,
+                level=unit.level,
+                base_str=unit.base_str,
+                base_dex=unit.base_dex,
+            )
+            session.add(unit1)
+
+            session.commit()
+
         self.refresh_unit_list()
+
         inventory_gui.refresh_unit_list()
 
         self.dismiss_unit_button.setDisabled(True)
@@ -565,6 +584,10 @@ if __name__ == '__main__':
     #unit_gui.show()
 
         ## testing by creating a bunch of stuff
+    engine = create_engine("sqlite://", echo=True)
+    Models.Base.metadata.create_all(engine)
+
+
     Unit.generate_random_unit()
     Unit.generate_random_unit()
     unittest = Unit.generate_random_unit()
@@ -592,3 +615,4 @@ if __name__ == '__main__':
     character_creation.initUI()
     character_creation.hide()
     sys.exit(app.exec_())
+

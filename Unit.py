@@ -25,7 +25,7 @@ class Unit:
         self.level = level
 
         self.exp = 0
-        self.alive = bool
+        self.is_alive = bool
         self.action_points = 0
 
         # base stat roll
