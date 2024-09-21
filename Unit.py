@@ -1,3 +1,5 @@
+import sqlite3
+
 import random
 import Stats
 import Items
@@ -7,8 +9,11 @@ nameslist = ["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'
              "Tetsedah", "Soultrax", "Tsoul", "Anathros", "Sathson", "Brody", "Cameron", "Brock", "Kevin", "Alessandro", 
              "Madeline", "Thomas", "Delwin Praeg", "Ryan", "Justin", "McCray", "Chase", "Elyse", "Noah", "Stephen", "Carlton", "Honeyglow", "Austyn"]
 charclasses = ["Weaponmaster", "Shaman", "Necromancer", "Monk", "Demonologist", "Elementalist", "Rogue", "Hemomancer", "Astromancer", "Crusader", "Priest"]
-unitlist = []
-enemyunitlist = []
+
+enemycharclasses = ["Goon", "Gob", "Skeleton"]
+
+unit_list = []
+enemy_unit_list = []
 
 class Unit:
 
@@ -19,103 +24,106 @@ class Unit:
         self.charclass = charclass
         self.level = level
 
-
+        self.exp = 0
+        self.alive = bool
+        self.action_points = 0
 
         # base stat roll
-        self.baseStrength = 10 + random.randrange(-2, 3)
-        self.baseDexterity = 10 + random.randrange(-2, 3)
-        self.baseSpeed = 10 + random.randrange(-2, 3)
-        self.baseVitality = 10 + random.randrange(-2, 3)
-        self.baseConstitution = 10 + random.randrange(-2, 3)
-        self.baseIntelligence = 10 + random.randrange(-2, 3)
-        self.baseMind = 10 + random.randrange(-2, 3)
-        self.baseResistance = 10 + random.randrange(-2, 3)
+        self.base_str = 10 + random.randrange(-2, 3)
+        self.base_dex = 10 + random.randrange(-2, 3)
+        self.base_spd = 10 + random.randrange(-2, 3)
+        self.base_vit = 10 + random.randrange(-2, 3)
+        self.base_con = 10 + random.randrange(-2, 3)
+        self.base_int = 10 + random.randrange(-2, 3)
+        self.base_mnd = 10 + random.randrange(-2, 3)
+        self.base_res = 10 + random.randrange(-2, 3)
 
-        self.maxHP = 75 + (4 * self.baseVitality)
-        self.currentHP = self.maxHP
+        self.max_hp = 75 + (4 * self.base_vit)
+        self.current_hp = self.max_hp
 
-        self.maxMana = 10 + (2 * self.baseMind)
-        self.currentMana = self.maxMana
+        self.max_mana = 10 + (2 * self.base_mnd)
+        self.current_mana = self.max_mana
 
-        self.melee_hit_chance = 70 + (self.baseDexterity / 5)
-        self.ranged_hit_chance = 50 + (self.baseDexterity / 4)
+        self.melee_hit_chance = 70 + (self.base_dex / 5)
+        self.ranged_hit_chance = 50 + (self.base_dex / 4)
 
-        self.basePhysicalResistance = (self.baseConstitution * 0.5)
-        self.baseMagicalResistance = (self.baseResistance * 0.5)
+        self.base_phys_res = (self.base_con * 0.5)
+        self.base_mag_res = (self.base_res * 0.5)
 
-        self.baseEvasion = 0
-        self.baseBlockChance = 0
+        self.base_evasion = 0
+
+        self.initiative = 0
 
         Unit.lastknownid += 1
-        self.id = Unit.lastknownid
+        self.unit_id = Unit.lastknownid
 
-        self.weaponslot1 = None
-        self.weaponslot2 = None
-        self.weaponslot3 = None
+        self.weapon_slot1 = None
+        self.weapon_slot2 = None
+        self.weapon_slot3 = None
 
-        self.helmetslot = None
-        self.armorslot = None
-        self.legslot = None
-        self.ringslot = None
+        self.helmet_slot = None
+        self.armor_slot = None
+        self.leg_slot = None
+        self.ring_slot = None
 
     def get_equipment_as_dict(self):
 
         return {
-                        'weaponslot1': self.weaponslot1,
-                        'weaponslot2': self.weaponslot2,
-                        'weaponslot3': self.weaponslot3,
-                        'helmetslot': self.helmetslot,
-                        'armorslot': self.armorslot,
-                        'legslot': self.legslot,
-                        'ringslot': self.ringslot,
+                        'weapon_slot1': self.weapon_slot1,
+                        'weapon_slot2': self.weapon_slot2,
+                        'weapon_slot3': self.weapon_slot3,
+                        'helmet_slot': self.helmet_slot,
+                        'armor_slot': self.armor_slot,
+                        'leg_slot': self.leg_slot,
+                        'ring_slot': self.ring_slot,
                             }
     
     def get_damage_reduction(self):
-        damage_reduction = (self.basePhysicalResistance / 100)
+        damage_reduction = (self.base_phys_res / 100)
         return damage_reduction
     
     def get_melee_damage(self):
         weapon_damage = 0
-        if self.weaponslot1:
-            weapon_damage = self.weaponslot1.damagerange
-        melee_damage = (self.baseStrength / 2) + (self.baseDexterity / 4) + weapon_damage 
+        if self.weapon_slot1:
+            weapon_damage = self.weapon_slot1.damagerange
+        melee_damage = (self.base_str / 2) + (self.base_dex / 4) + weapon_damage 
         return round(melee_damage)
     
     def refresh_stats(self):
 
-        self.maxHP = 75 + (4 * self.baseVitality)
-        self.currentHP = self.maxHP
+        self.max_hp = 75 + (4 * self.base_vit)
+        self.current_hp = self.max_hp
 
-        self.maxMana = 10 + (2 * self.baseMind)
-        self.currentMana = self.maxMana
+        self.max_mana = 10 + (2 * self.base_mnd)
+        self.current_mana = self.max_mana
 
-        self.melee_hit_chance = 70 + (self.baseDexterity / 5)
-        self.ranged_hit_chance = 50 + (self.baseDexterity / 4)
+        self.melee_hit_chance = 70 + (self.base_dex / 5)
+        self.ranged_hit_chance = 50 + (self.base_dex / 4)
 
-        self.basePhysicalResistance = (self.baseConstitution * 0.5)
-        self.baseMagicalResistance = (self.baseResistance * 0.5)
+        self.base_phys_res = (self.base_con * 0.5)
+        self.base_mag_res = (self.base_res * 0.5)
 
-        self.baseEvasion = 0
+        self.base_evasion = 0
         self.baseBlockChance = 0
 
 
 
 def get_unit_by_id(id):
-    for unit in unitlist:
-        if id == unit.id:
+    for unit in unit_list:
+        if id == unit.unit_id:
             return unit
         
 def generate_stat_roll():
 
     return {
-    'baseStrength': 10 + random.randrange(-2, 3),
-    'baseDexterity': 10 + random.randrange(-2, 3),
-    'baseSpeed': 10 + random.randrange(-2, 3), 
-    'baseVitality': 10 + random.randrange(-2, 3),
-    'baseConstitution': 10 + random.randrange(-2, 3),
-    'baseIntelligence': 10 + random.randrange(-2, 3),
-    'baseMind': 10 + random.randrange(-2, 3),
-    'baseResistance': 10 + random.randrange(-2, 3),
+    'base_str': 10 + random.randrange(-2, 3),
+    'base_dex': 10 + random.randrange(-2, 3),
+    'base_spd': 10 + random.randrange(-2, 3), 
+    'base_vit': 10 + random.randrange(-2, 3),
+    'base_con': 10 + random.randrange(-2, 3),
+    'base_int': 10 + random.randrange(-2, 3),
+    'base_mnd': 10 + random.randrange(-2, 3),
+    'base_res': 10 + random.randrange(-2, 3),
     }
     
 
@@ -126,42 +134,42 @@ def damage_calc(attacker, opponent):
     return round(finaldamage)
 
 def display_unit(unit, option = 0):
-    display_stats = [f'ID: {unit.id}',
+    display_stats = [f'ID: {unit.unit_id}',
                     f'Name:\t{unit.name}', 
                     f'Job:\t{unit.charclass}',  
                     f'Level:\t{unit.level}'
                     ]
     if option == 1:
-        display_stats.append(f'\nHP: {unit.currentHP}/{unit.maxHP}   Mana: {unit.currentMana}/{unit.maxMana}')
-        if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
-        if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
-        if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
+        display_stats.append(f'\nHP: {unit.current_hp}/{unit.max_hp}   Mana: {unit.current_mana}/{unit.max_mana}')
+        if unit.weapon_slot1: display_stats.append(f'\nEQUIP: {unit.weapon_slot1.name}')
+        if unit.weapon_slot2: display_stats.append(f'EQUIP: {unit.weapon_slot2.name}')
+        if unit.weapon_slot3: display_stats.append(f'EQUIP: {unit.weapon_slot3.name}')
 
     if option == 2:
-        display_stats.append(f"\nCurrent / Max HP:\t\t{unit.currentHP} / {unit.maxHP}")
-        display_stats.append(f"Current / Max Mana:\t{unit.currentMana} / {unit.maxMana}")
-        display_stats.append(f"Strength:\t\t{unit.baseStrength}")
-        display_stats.append(f"Dexterity:\t{unit.baseDexterity}")
-        display_stats.append(f"Speed:\t\t{unit.baseSpeed}")
-        display_stats.append(f"Vitality:\t\t{unit.baseVitality}")
-        display_stats.append(f"Constitution:\t{unit.baseConstitution}")
-        display_stats.append(f"Intelligence:\t{unit.baseIntelligence}")
-        display_stats.append(f"Mind:\t\t{unit.baseMind}")
-        display_stats.append(f"Resistance:\t{unit.baseResistance}")
+        display_stats.append(f"\nCurrent / Max HP:\t\t{unit.current_hp} / {unit.max_hp}")
+        display_stats.append(f"Current / Max Mana:\t{unit.current_mana} / {unit.max_mana}")
+        display_stats.append(f"Strength:\t\t{unit.base_str}")
+        display_stats.append(f"Dexterity:\t{unit.base_dex}")
+        display_stats.append(f"Speed:\t\t{unit.base_spd}")
+        display_stats.append(f"Vitality:\t\t{unit.base_vit}")
+        display_stats.append(f"Constitution:\t{unit.base_con}")
+        display_stats.append(f"Intelligence:\t{unit.base_int}")
+        display_stats.append(f"Mind:\t\t{unit.base_mnd}")
+        display_stats.append(f"Resistance:\t{unit.base_res}")
         display_stats.append(f"\nMelee Damage:\t{unit.get_melee_damage()}")
         display_stats.append(f"Melee Hit Chance:\t{(get_hit_chance(unit, None, False))}%")
         display_stats.append(f"Ranged Hit Chance:{(get_hit_chance(unit, None, True))}%")
-        display_stats.append(f"\nPhysical Damage Reduction:\t{unit.basePhysicalResistance}%")
-        display_stats.append(f"Magical Damage Reduction:\t{unit.baseMagicalResistance}%")
-        if unit.weaponslot1: display_stats.append(f'\nEQUIP: {unit.weaponslot1.name}')
-        if unit.weaponslot2: display_stats.append(f'EQUIP: {unit.weaponslot2.name}')
-        if unit.weaponslot3: display_stats.append(f'EQUIP: {unit.weaponslot3.name}')
+        display_stats.append(f"\nPhysical Damage Reduction:\t{unit.base_phys_res}%")
+        display_stats.append(f"Magical Damage Reduction:\t{unit.base_mag_res}%")
+        if unit.weapon_slot1: display_stats.append(f'\nEQUIP: {unit.weapon_slot1.name}')
+        if unit.weapon_slot2: display_stats.append(f'EQUIP: {unit.weapon_slot2.name}')
+        if unit.weapon_slot3: display_stats.append(f'EQUIP: {unit.weapon_slot3.name}')
 
     if option == 3:
         display_stats.append(f'\n')
-        if unit.weaponslot1: display_stats.append(f'Weapon Slot 1: {unit.weaponslot1.name}')
-        if unit.weaponslot2: display_stats.append(f'Weapon Slot 2: {unit.weaponslot2.name}')
-        if unit.weaponslot3: display_stats.append(f'Weapon Slot 3: {unit.weaponslot3.name}')
+        if unit.weapon_slot1: display_stats.append(f'Weapon Slot 1: {unit.weapon_slot1.name}')
+        if unit.weapon_slot2: display_stats.append(f'Weapon Slot 2: {unit.weapon_slot2.name}')
+        if unit.weapon_slot3: display_stats.append(f'Weapon Slot 3: {unit.weapon_slot3.name}')
             
 
 
@@ -187,12 +195,12 @@ def get_hit_chance(attacker, opponent = None, is_ranged = False):
 
     if not is_ranged:
         if opponent:
-            finalhitchance = (attacker.melee_hit_chance - opponent.baseEvasion)
+            finalhitchance = (attacker.melee_hit_chance - opponent.base_evasion)
         else: 
             finalhitchance = attacker.melee_hit_chance
     elif is_ranged:
         if opponent:
-            finalhitchance = (attacker.ranged_hit_chance - opponent.baseEvasion)
+            finalhitchance = (attacker.ranged_hit_chance - opponent.base_evasion)
         else:
             finalhitchance = attacker.ranged_hit_chance
 
@@ -203,7 +211,7 @@ def get_hit_chance(attacker, opponent = None, is_ranged = False):
 
 def attack(attacker, opponent):
     #attackerHitChance = attacker.melee_hit_chance
-    #opponentEvasion = opponent.baseEvasion
+    #opponentEvasion = opponent.base_evasion
 
     hitchance = get_hit_chance(attacker, opponent)
 
@@ -215,8 +223,8 @@ def attack(attacker, opponent):
         print(f"Roll: {hitroll}")
         print(f"{attacker.name} HIT for {damage_calc(attacker, opponent)} damage!")
 
-        opponent.currentHP = opponent.currentHP - damage_calc(attacker, opponent)
-        print(f"{opponent.name} now has {opponent.currentHP} of {opponent.maxHP} HP.")
+        opponent.current_hp = opponent.current_hp - damage_calc(attacker, opponent)
+        print(f"{opponent.name} now has {opponent.current_hp} of {opponent.max_hp} HP.")
     else:
         print(hitroll)
         print(f"{attacker.name} missed.")
@@ -236,6 +244,6 @@ def generate_random_unit():
     charclass = random.choice(charclasses)
 
     randomunit = Unit(randomname, charclass, 1)
-    unitlist.append(randomunit)
+    unit_list.append(randomunit)
     return randomunit
 

@@ -1,25 +1,27 @@
+import sqlite3
+
 
 class LevelUpStats:
-    def __init__(self, baseStrength, baseDexterity, baseSpeed, baseVitality, baseConstitution, baseIntelligence, baseMind, baseResistance):
-        self.baseStrength = baseStrength
-        self.baseDexterity = baseDexterity
-        self.baseSpeed = baseSpeed
-        self.baseVitality = baseVitality
-        self.baseConstitution = baseConstitution
-        self.baseIntelligence = baseIntelligence
-        self.baseMind = baseMind
-        self.baseResistance = baseResistance
+    def __init__(self, base_str, base_dex, base_spd, base_vit, base_con, base_int, base_mnd, base_res):
+        self.base_str = base_str
+        self.base_dex = base_dex
+        self.base_spd = base_spd
+        self.base_vit = base_vit
+        self.base_con = base_con
+        self.base_int = base_int
+        self.base_mnd = base_mnd
+        self.base_res = base_res
 
     def as_dict(self):
         return {
-            'baseStrength': self.baseStrength,
-            'baseDexterity': self.baseDexterity,
-            'baseSpeed': self.baseSpeed,
-            'baseVitality': self.baseVitality,
-            'baseConstitution': self.baseConstitution,
-            'baseIntelligence': self.baseIntelligence,
-            'baseMind': self.baseMind,
-            'baseResistance': self.baseResistance,
+            'base_str': self.base_str,
+            'base_dex': self.base_dex,
+            'base_spd': self.base_spd,
+            'base_vit': self.base_vit,
+            'base_con': self.base_con,
+            'base_int': self.base_int,
+            'base_mnd': self.base_mnd,
+            'base_res': self.base_res,
         }
 
 levelup_stats = {

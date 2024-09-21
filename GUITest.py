@@ -98,7 +98,7 @@ class CharacterCreation(QWidget):
 
         self.unit_stats = Unit.generate_stat_roll()
 
-        self.character_stats.setText(f"""\nStrength:\t\t{self.unit_stats['baseStrength']}\nDexterity:\t{self.unit_stats['baseDexterity']}\nSpeed:\t\t{self.unit_stats['baseSpeed']}\nVitality:\t\t{self.unit_stats['baseVitality']}\nConstitution:\t{self.unit_stats['baseConstitution']}\nIntelligence:\t{self.unit_stats['baseIntelligence']}\nMind:\t\t{self.unit_stats['baseMind']}\nResistance:\t{self.unit_stats['baseResistance']}""")
+        self.character_stats.setText(f"""\nStrength:\t\t{self.unit_stats['base_str']}\nDexterity:\t{self.unit_stats['base_dex']}\nSpeed:\t\t{self.unit_stats['base_spd']}\nVitality:\t\t{self.unit_stats['base_vit']}\nConstitution:\t{self.unit_stats['base_con']}\nIntelligence:\t{self.unit_stats['base_int']}\nMind:\t\t{self.unit_stats['base_mnd']}\nResistance:\t{self.unit_stats['base_res']}""")
         return self.unit_stats
 
     def cancel_window(self):
@@ -127,7 +127,7 @@ class CharacterCreation(QWidget):
             for key, value in self.unit_stats.items():
                 setattr(unit, key, value)
 
-            Unit.unitlist.append(unit)
+            Unit.unit_list.append(unit)
 
             unit_gui.refresh_unit_list()
             inventory_gui.refresh_all()
@@ -233,13 +233,13 @@ class UnitGUI(QWidget):
         
     def refresh_unit_list(self):
         self.list1.clear()
-        for unit in Unit.unitlist:
-            self.list1.addItem(f"{unit.id} {unit.name}")
+        for unit in Unit.unit_list:
+            self.list1.addItem(f"{unit.unit_id} {unit.name}")
 
     def get_selected_unit(self):
 
         selected = self.list1.currentRow()
-        unit = Unit.unitlist[selected]
+        unit = Unit.unit_list[selected]
 
         #unit_id = int(item.text().split(' ')[0])                   ## getting the row (and using it as an index for the unit_list)is better than getting it by their name string,
         #unit = Unit.get_unit_by_id(unit_id)                        ## because what happens if we have multiple units with the same name? It always gets the first unit in the list with that name. 
@@ -276,7 +276,7 @@ class UnitGUI(QWidget):
 
     def dismiss_unit(self):
         unit = self.get_selected_unit()
-        Unit.unitlist.remove(unit)
+        Unit.unit_list.remove(unit)
 
         self.list1.setCurrentItem(None)
         self.unit_stats.clear()
@@ -371,8 +371,8 @@ class InventoryGUI(QWidget):
 
     def refresh_unit_list(self):
         self.unit_list.clear()
-        for unit in Unit.unitlist:
-            self.unit_list.addItem(f"{unit.id} {unit.name}")
+        for unit in Unit.unit_list:
+            self.unit_list.addItem(f"{unit.unit_id} {unit.name}")
 
     def refresh_equipment_list(self):
         self.unit_equip_list.clear()
@@ -464,6 +464,7 @@ class InventoryGUI(QWidget):
         self.refresh_equipment_list()
         self.refresh_inventory_list()
         self.unequip_button.setDisabled(True)
+        self.equip_button.setDisabled(True)
 
         self.sync_window_selections()
 
@@ -496,7 +497,7 @@ class InventoryGUI(QWidget):
 
         unit_gui.list1.setCurrentRow(selection)
         
-        unit = Unit.unitlist[selection]
+        unit = Unit.unit_list[selection]
         stats = Unit.display_unit(unit, 2)
 
         unit_gui.unit_stats.setText(stats)
@@ -515,12 +516,12 @@ class InventoryGUI(QWidget):
 
         if item.item_type == "weapon":
 
-            if not unit.weaponslot1:
-                item.equip(unit, "weaponslot1", items_inventory)
-            elif not unit.weaponslot2:
-                item.equip(unit, "weaponslot2", items_inventory)
-            elif not unit.weaponslot3:
-                item.equip(unit, "weaponslot3", items_inventory)
+            if not unit.weapon_slot1:
+                item.equip(unit, "weapon_slot1", items_inventory)
+            elif not unit.weapon_slot2:
+                item.equip(unit, "weapon_slot2", items_inventory)
+            elif not unit.weapon_slot3:
+                item.equip(unit, "weapon_slot3", items_inventory)
             else:
                 inventory_gui.item_stats_label.setText("No Free Weapon Slots!")
                 equipment_itemid_list.append(item.itemid)
@@ -576,11 +577,11 @@ if __name__ == '__main__':
     items_inventory.items.append(weapon2)
     items_inventory.items.append(weapon3)
     items_inventory.items.append(weapon4)
-    weapon.equip(unittest, "weaponslot3", items_inventory)
+    weapon.equip(unittest, "weapon_slot3", items_inventory)
 
     armor = Items.Armor("Iron Mail Armor", 10, "armor", 200, "mail", 10, 10, 10)
     items_inventory.items.append(armor)
-    armor.equip(unittest, "armorslot", items_inventory)
+    armor.equip(unittest, "armor_slot", items_inventory)
 
     app = QApplication(sys.argv)
     unit_gui = UnitGUI()

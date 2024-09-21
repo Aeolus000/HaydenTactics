@@ -1,5 +1,5 @@
 import random
-
+import sqlite3
 import Unit
 import Stats
 
@@ -37,7 +37,7 @@ class Inventory:
 
 class Item:
       
-      slot_types = ("weaponslot1", "weaponslot2", "weaponslot3", "helmetslot", "armorslot", "legslot", "ringslot")
+      slot_types = ("weapon_slot1", "weapon_slot2", "weapon_slot3", "helmet_slot", "armor_slot", "leg_slot", "ring_slot")
       lastknownitemid = 0
 
       def __init__(self, name, weight, value, item_type):
@@ -151,7 +151,7 @@ class Armor(Item):
             self.slashingreduction = slashingreduction
             self.piercingreduction = piercingreduction
             self.crushingreduction = crushingreduction
-            self.slot_type = ["helmetslot", "armorslot", "legslot", "ringslot"]
+            self.slot_type = ["helmet_slot", "armor_slot", "leg_slot", "ring_slot"]
             self.item_type = "armor"
 
 
