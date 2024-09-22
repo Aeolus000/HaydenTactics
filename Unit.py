@@ -3,6 +3,7 @@ import sqlite3
 import random
 import Stats
 import Items
+import Models
 
 nameslist = ["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'jin", "Byron", "Jaeremy", "Artemisia", "Judica", 
              "Adalinde", "Olivia", "Garth", "Erebus", "Marius", "Daniel", "Selene", "Liam", "Hayden", "Jessica", "Kayloc", 
@@ -243,6 +244,8 @@ def generate_random_unit():
 
     charclass = random.choice(charclasses)
 
+
+    #Service.UnitService.create("Hayden", "Shaman", 1)
     randomunit = Unit(randomname, charclass, 1)
     unit_list.append(randomunit)
     return randomunit

@@ -9,9 +9,10 @@ import Unit
 import Stats
 import Items
 #from Models import Base
-import Models
-import Service
+from Models import UnitTable, Base
+from Service import *
 
+from sqlalchemy import String, select, ForeignKey
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -154,8 +155,8 @@ class CharacterCreation(QWidget):
 class UnitGUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.list1 = QListWidget(self)
-        self.unit_stats = QLabel(self)
+        self.unit_list = QListWidget(self)
+        self.unit_stats_label = QLabel(self)
         self.button = QPushButton("Generate Random Character", self)
 
         self.level_up_button = QPushButton("Level Up", self)
@@ -165,7 +166,6 @@ class UnitGUI(QWidget):
         self.create_character_button = QPushButton("Create Character", self)
 
         self.initUI()
-        
 
 
     def initUI(self):
@@ -173,17 +173,17 @@ class UnitGUI(QWidget):
         self.setWindowTitle("Hayden Tactics")
 
         grid = QGridLayout()
-        grid.addWidget(self.list1, 0, 0)
+        grid.addWidget(self.unit_list, 0, 0)
         grid.addWidget(self.button)
         grid.addWidget(self.create_character_button, 2, 0)
-        grid.addWidget(self.unit_stats, 0, 1)
+        grid.addWidget(self.unit_stats_label, 0, 1)
         #grid.addWidget(self.exit)
         grid.addWidget(self.level_up_button, 1, 1)
         grid.addWidget(self.dismiss_unit_button, 2, 1)
         grid.addWidget(self.message, 0, 2)
 
-        self.list1.setGeometry(0, 0, 200, 200)
-        self.unit_stats.setGeometry(100, 100, 400, 600)
+        self.unit_list.setGeometry(0, 0, 200, 200)
+        self.unit_stats_label.setGeometry(100, 100, 400, 600)
 
         self.message.setStyleSheet("font-family: calibri; font-size: 20px")
 
@@ -194,7 +194,7 @@ class UnitGUI(QWidget):
         self.level_up_button.setDisabled(True)
         self.level_up_button.clicked.connect(self.display_level_up)
 
-        self.list1.itemClicked.connect(self.selection_changed)
+        self.unit_list.itemClicked.connect(self.selection_changed)
 
         self.dismiss_unit_button.setDisabled(True)
         self.dismiss_unit_button.clicked.connect(self.dismiss_unit)
@@ -203,112 +203,84 @@ class UnitGUI(QWidget):
 
         self.refresh_unit_list()
 
-        self.unit_stats.setAlignment(Qt.AlignTop)
+        self.unit_stats_label.setAlignment(Qt.AlignTop)
+
 
     def selection_changed(self):
 
         unit = self.get_selected_unit()
 
-        unit_stats = Unit.display_unit(unit, 2)
-
-        self.unit_stats.setText(unit_stats)
-
-
-        if self.list1.currentItem() == None:
-            self.dismiss_unit_button.setDisabled(True)
-            self.level_up_button.setDisabled(True)
-        else:
-            self.dismiss_unit_button.setDisabled(False)
-            self.level_up_button.setDisabled(False)
-
-        if unit.level >= 30:
-            self.level_up_button.setDisabled(True)
-        else:
-            self.level_up_button.setDisabled(False)
-
-        inventory_gui.refresh_all()
-        inventory_gui.unequip_button.setDisabled(True)
-        inventory_gui.equip_button.setDisabled(True)
+        display_stats = Displays.text_format(unit)
         
-        if self.list1.currentRow() == inventory_gui.unit_list.currentRow():
-            pass
-        else:
-            self.sync_window_selections()
+
+        #print(f"selection_changed function: {unit.name} {unit.id}")
+
+        #for value in unit_stats.__dict__.items():
+        #    print(value)
+
+        self.unit_stats_label.setText(display_stats)
+
+
+
+        #self.unit_stats_label.setText(unit_stats)
+
+        # if self.unit_list.currentItem() == None:
+        #     self.dismiss_unit_button.setDisabled(True)
+        #     self.level_up_button.setDisabled(True)
+        # else:
+        #     self.dismiss_unit_button.setDisabled(False)
+        #     self.level_up_button.setDisabled(False)
+
+        # if unit.level >= 30:
+        #     self.level_up_button.setDisabled(True)
+        # else:
+        #     self.level_up_button.setDisabled(False)
 
         
     def refresh_unit_list(self):
-        self.list1.clear()
-        for unit in Unit.unit_list:
-            self.list1.addItem(f"{unit.unit_id} {unit.name}")
+        self.unit_list.clear()
+
+        units = UnitService.get_all()
+        for unit in units:
+            self.unit_list.addItem(f"{unit.name}")
 
     def get_selected_unit(self):
 
-        selected = self.list1.currentRow()
-        unit = Unit.unit_list[selected]
+        selected = self.unit_list.currentRow()
+        #print(selected)
 
-        #unit_id = int(item.text().split(' ')[0])                   ## getting the row (and using it as an index for the unit_list)is better than getting it by their name string,
-        #unit = Unit.get_unit_by_id(unit_id)                        ## because what happens if we have multiple units with the same name? It always gets the first unit in the list with that name. 
+        db_unit = UnitService.get_attributes_by_id(selected + 1)
 
-        return unit
-        
+        #print(db_unit.name, db_unit.id, db_unit.charclass)
+
+        return db_unit
+    
 
     def display_random_unit(self):
-        unit = Unit.generate_random_unit()
+
+        unit = UnitService.generate_random_unit()
 
         self.refresh_unit_list()
-
-        inventory_gui.refresh_unit_list()
 
         self.dismiss_unit_button.setDisabled(True)
         self.level_up_button.setDisabled(True)
 
     def display_created_unit(self):
-        
-        character_creation.show()
-        character_creation.display_reroll()
-
-        self.create_character_button.setDisabled(True)
-        inventory_gui.hide()
-
+        pass
 
     def display_level_up(self):
-        unit = self.get_selected_unit()
-
-        Unit.level_up(unit)
-        self.message.setText(f"{unit.name} has leveled up to Level {unit.level}!")
-
-        self.selection_changed()
-
+        pass
 
     def dismiss_unit(self):
         unit = self.get_selected_unit()
         Unit.unit_list.remove(unit)
 
-        self.list1.setCurrentItem(None)
-        self.unit_stats.clear()
+        self.unit_list.setCurrentItem(None)
+        self.unit_stats_label.clear()
         self.dismiss_unit_button.setDisabled(True)
         self.level_up_button.setDisabled(True)
 
-        inventory_gui.equip_button.setDisabled(True)
-        inventory_gui.unequip_button.setDisabled(True)
-
         self.refresh_unit_list()
-        inventory_gui.refresh_all()
-
-    def sync_window_selections(self):
-
-        selection = self.list1.currentItem()
-
-        for i in self.list1.findItems("*", Qt.MatchWildcard):                           # i is getting objects
-            if i.text() == selection.text():
-                select1 = i.text()
-
-        for i in inventory_gui.unit_list.findItems("*", Qt.MatchWildcard):
-            if select1 == i.text():
-                inventory_gui.unit_list.setCurrentItem(i)
-                inventory_gui.unit_list.clicked
-                inventory_gui.selection_changed_unit_list()
-                
         
 
 class InventoryGUI(QWidget):
@@ -396,7 +368,7 @@ class InventoryGUI(QWidget):
     def refresh_inventory_list(self):
         self.inventory_list.clear()
 
-        for item in items_inventory.items:
+        for item in player_inventory.items:
             self.inventory_list.addItem(f"{item.name}")
 
 
@@ -448,14 +420,14 @@ class InventoryGUI(QWidget):
             # inv_item = inv_item.data(2)
 
             inv_itemid_list = []
-            for i in items_inventory.items:
+            for i in player_inventory.items:
                 inv_itemid_list.append(i.itemid)
 
             inv_list_index = self.inventory_list.currentRow()
 
             item_id = inv_itemid_list[inv_list_index]
 
-            item = Items.Item.get_item_by_id(item_id, inventory=items_inventory)
+            item = Items.Item.get_item_by_id(item_id, inventory=player_inventory)
 
             print(item)
 
@@ -501,12 +473,12 @@ class InventoryGUI(QWidget):
 
         selection = self.unit_list.currentRow()
 
-        unit_gui.list1.setCurrentRow(selection)
+        unit_gui.unit_list.setCurrentRow(selection)
         
         unit = Unit.unit_list[selection]
         stats = Unit.display_unit(unit, 2)
 
-        unit_gui.unit_stats.setText(stats)
+        unit_gui.unit_stats_label.setText(stats)
         
         
     def equip_equipment(self):
@@ -523,18 +495,18 @@ class InventoryGUI(QWidget):
         if item.item_type == "weapon":
 
             if not unit.weapon_slot1:
-                item.equip(unit, "weapon_slot1", items_inventory)
+                item.equip(unit, "weapon_slot1", player_inventory)
             elif not unit.weapon_slot2:
-                item.equip(unit, "weapon_slot2", items_inventory)
+                item.equip(unit, "weapon_slot2", player_inventory)
             elif not unit.weapon_slot3:
-                item.equip(unit, "weapon_slot3", items_inventory)
+                item.equip(unit, "weapon_slot3", player_inventory)
             else:
-                inventory_gui.item_stats_label.setText("No Free Weapon Slots!")
+                #inventory_gui.item_stats_label.setText("No Free Weapon Slots!")
                 equipment_itemid_list.append(item.itemid)
 
         elif item.item_type == "armor":
 
-            item.equip(unit, item.slot_type, items_inventory)
+            item.equip(unit, item.slot_type, player_inventory)
             equipment_itemid_list.append(item.itemid)
 
         self.refresh_inventory_list()
@@ -554,7 +526,7 @@ class InventoryGUI(QWidget):
         unit = self.get_selected_unit()
         item = self.get_selected_equipment()
 
-        item.unequip(unit, item.slot_type, items_inventory)
+        item.unequip(unit, item.slot_type, player_inventory)
 
         print(item.slot_type)
 
@@ -566,40 +538,48 @@ class InventoryGUI(QWidget):
         self.refresh_equipment_list()
         self.sync_window_selections()
 
+
+class Displays:
+
+    @staticmethod
+    def text_format(unit):
+        display_stats = [f'ID: {unit.id}',
+            f'Name:\t{unit.name}', 
+            f'Job:\t{unit.charclass}',  
+            f'Level:\t{unit.level}'
+            ]
+        display_stats.append(f"\nCurrent / Max HP:\t\t{unit.current_hp} / {unit.max_hp}")
+        display_stats.append(f"Current / Max Mana:\t{unit.current_mana} / {unit.max_mana}")
+        display_stats.append(f"Strength:\t\t{unit.base_str}")
+        display_stats.append(f"Dexterity:\t{unit.base_dex}")
+        display_stats.append(f"Speed:\t\t{unit.base_spd}")
+        display_stats.append(f"Vitality:\t\t{unit.base_vit}")
+        display_stats.append(f"Constitution:\t{unit.base_con}")
+        display_stats.append(f"Intelligence:\t{unit.base_int}")
+        display_stats.append(f"Mind:\t\t{unit.base_mnd}")
+        display_stats.append(f"Resistance:\t{unit.base_res}")
+        display_stats.append(f"\nPhysical Damage Reduction:\t{unit.base_phys_res}%")
+        display_stats.append(f"Magical Damage Reduction:\t{unit.base_mag_res}%")
+
+        return '\n'.join(display_stats)
+
+
+
+
+
+
 if __name__ == '__main__':
 
-    #unit_gui.show()
+    Base.metadata.create_all(engine)
 
-        ## testing by creating a bunch of stuff
-
-    Models.Base.metadata.create_all(Service.engine)
-
-
-    Unit.generate_random_unit()
-    Unit.generate_random_unit()
-    unittest = Unit.generate_random_unit()
-    items_inventory = Items.Inventory(50)
-    weapon = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
-    weapon2 = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
-    weapon3 = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
-    weapon4 = Items.Weapon("Iron Short Sword", 4, 50, "one-handed", "Slashing", 6)
-    items_inventory.items.append(weapon)
-    items_inventory.items.append(weapon2)
-    items_inventory.items.append(weapon3)
-    items_inventory.items.append(weapon4)
-    weapon.equip(unittest, "weapon_slot3", items_inventory)
-
-    armor = Items.Armor("Iron Mail Armor", 10, "armor", 200, "mail", 10, 10, 10)
-    items_inventory.items.append(armor)
-    armor.equip(unittest, "armor_slot", items_inventory)
+    player_inventory = Items.Inventory(50)
 
     app = QApplication(sys.argv)
     unit_gui = UnitGUI()
     unit_gui.show()
-    inventory_gui = InventoryGUI()
-    inventory_gui.show()
-    character_creation = CharacterCreation()
-    character_creation.initUI()
-    character_creation.hide()
+    #inventory_gui = InventoryGUI()
+    #inventory_gui.show()
+    #character_creation = CharacterCreation()
+    #character_creation.initUI()
+    #character_creation.hide()
     sys.exit(app.exec_())
-

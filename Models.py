@@ -28,16 +28,17 @@ class Base(DeclarativeBase):
     pass
 
 class UnitTable(Base):
-    __tablename__ = "unit_table"
+    __tablename__ = "UnitTable"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    unit_id: Mapped[int] = mapped_column()
+    #unit_id: Mapped[int] = mapped_column()
     name: Mapped[str] = mapped_column(String(30))
     charclass: Mapped[str] = mapped_column(String(30))
     level: Mapped[int] = mapped_column(nullable = True)
 
     initiative: Mapped[int] = mapped_column(nullable = True)
     exp: Mapped[int] = mapped_column(nullable = True)
+    action_points: Mapped[int] = mapped_column(nullable = True)
 
     is_alive: Mapped[bool] = mapped_column(nullable = True)
 
@@ -76,20 +77,20 @@ class UnitTable(Base):
 
 
 
-unit = Unit.Unit("Hayden", "Shaman", 1)
+# unit = Unit.Unit("Hayden", "Shaman", 1)
 
 #unit_list = Unit.unit_list
 
-with Session(engine) as session:
+# with Session(engine) as session:
 
-    unit1 = UnitTable(
-        unit_id=unit.unit_id,
-        name=unit.name,
-        charclass=unit.charclass,
-        level=unit.level,
-        base_str=unit.base_str,
-        base_dex=unit.base_dex,
-    )
+#     unit1 = UnitTable(
+#         unit_id=unit.unit_id,
+#         name=unit.name,
+#         charclass=unit.charclass,
+#         level=unit.level,
+#         base_str=unit.base_str,
+#         base_dex=unit.base_dex,
+    # )
     # unit = Unit(
     #     unit_id=1,
     #     name="Hayden",
@@ -104,18 +105,18 @@ with Session(engine) as session:
     # )
 
     #session.add_all([unit, unit2])
-    session.add(unit1)
+    # session.add(unit1)
 
-    session.commit()
-
-
-    #stmt = select(UnitTable).where(UnitTable.id >= 1)
-    result = session.execute(select(UnitTable).order_by(UnitTable.id))
+    # session.commit()
 
 
-    print(result.all())
+    # #stmt = select(UnitTable).where(UnitTable.id >= 1)
+    # result = session.execute(select(UnitTable).order_by(UnitTable.id))
 
-    print(unit1.name)
+
+    # print(result.all())
+
+    # print(unit1.name)
 
     #selected_unit = result.all()[0]
     #print(selected_unit.name)
