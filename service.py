@@ -1,7 +1,7 @@
 import random
 from sqlalchemy import String, select, ForeignKey
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, mapped_column
+from sqlalchemy import create_engine, update
 
 
 import Unit
@@ -127,20 +127,8 @@ class UnitService:
     @classmethod
     def get_all(self):
         with Session(engine) as session:
-            
-
-            #row = session.execute(select(UnitTable.name, UnitTable.id)).all()
-            #blah = select(UnitTable).where(UnitTable.id >= 1)
-            #row = session.execute(blah)
-
-            #blah2 = session.execute(select(UnitTable.all()).where(UnitTable.id >= 1))
 
             test = session.query(UnitTable).all()
-            # for item in test:
-            #     print(item.name)
-            #     print(item.id)
-
-            #print(db_return)
 
         return test
 
@@ -148,22 +136,70 @@ class UnitService:
 
         with Session(engine) as session:
 
-            #test = session.query(UnitTable).where(UnitTable.id == unit_id)
             unit = session.query(UnitTable).get(unit_id)                ### this returns the whole row properly
-
-            #esult = session.execute(test)
-
-        
     
         return unit
+    
+    def get_unit_by_row(selection):
+
+        with Session(engine) as session:
+
+            unitslol = session.query(UnitTable).all()              ### how do i get a specific row by number???
+            unit = unitslol[selection]
+            print(unit)
+    
+        return unit
+    
+    def refresh_stats_noncombat(unit):
+
+        with Session(engine) as session:
+
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'max_hp': 75 + (4 * unit.base_vit)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_hp': 75 + (4 * unit.base_vit)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'max_mana': 10 + (2 * unit.base_mnd)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_mana':10 + (2 * unit.base_mnd)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'melee_hit_chance': 70 + (unit.base_dex / 5)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'ranged_hit_chance': 50 + (unit.base_dex / 4)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_phys_res': (unit.base_con * 0.5)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_mag_res': (unit.base_res * 0.5),})
+
+            session.commit()
+            session.flush()
+
+    
+    def level_up(unit):
+        
+        stats = Stats.levelup_stats[unit.charclass]
+
+        with Session(engine) as session:
+            unit.level = unit.level + 1
+
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'level': unit.level})
+
+            for key, value in stats.as_dict().items():
+
+                unit_current_stat = getattr(unit, key)
+
+                session.query(UnitTable).filter(UnitTable.id == unit.id).update({key: unit_current_stat + value})
 
 
+            session.commit()
+            session.flush()
+                
+
+            #     print(key, value, unit.name, (getattr(unit, key), value))
+                
+            #unit.level += 1
+
+    def dismiss(unit):
+
+        with Session(engine) as session:
+            session.delete(unit)
+
+            session.commit()
+            session.flush()
 
 
-engine = create_engine("sqlite:///database.db", echo=True)
+engine = create_engine("sqlite:///database.db", echo=False)
 
 Base.metadata.create_all(engine)
-
-
-
-

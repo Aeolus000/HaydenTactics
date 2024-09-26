@@ -28,7 +28,7 @@ class Base(DeclarativeBase):
     pass
 
 class UnitTable(Base):
-    __tablename__ = "UnitTable"
+    __tablename__ = "unit_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     #unit_id: Mapped[int] = mapped_column()

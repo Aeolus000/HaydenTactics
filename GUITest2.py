@@ -211,12 +211,6 @@ class UnitGUI(QWidget):
         unit = self.get_selected_unit()
 
         display_stats = Displays.text_format(unit)
-        
-
-        #print(f"selection_changed function: {unit.name} {unit.id}")
-
-        #for value in unit_stats.__dict__.items():
-        #    print(value)
 
         self.unit_stats_label.setText(display_stats)
 
@@ -224,17 +218,17 @@ class UnitGUI(QWidget):
 
         #self.unit_stats_label.setText(unit_stats)
 
-        # if self.unit_list.currentItem() == None:
-        #     self.dismiss_unit_button.setDisabled(True)
-        #     self.level_up_button.setDisabled(True)
-        # else:
-        #     self.dismiss_unit_button.setDisabled(False)
-        #     self.level_up_button.setDisabled(False)
+        if self.unit_list.currentItem() == None:
+            self.dismiss_unit_button.setDisabled(True)
+            self.level_up_button.setDisabled(True)
+        else:
+            self.dismiss_unit_button.setDisabled(False)
+            self.level_up_button.setDisabled(False)
 
-        # if unit.level >= 30:
-        #     self.level_up_button.setDisabled(True)
-        # else:
-        #     self.level_up_button.setDisabled(False)
+        if unit.level >= 30:
+            self.level_up_button.setDisabled(True)
+        else:
+            self.level_up_button.setDisabled(False)
 
         
     def refresh_unit_list(self):
@@ -242,16 +236,15 @@ class UnitGUI(QWidget):
 
         units = UnitService.get_all()
         for unit in units:
-            self.unit_list.addItem(f"{unit.name}")
+            self.unit_list.addItem(f"{unit.id} {unit.name}")
 
     def get_selected_unit(self):
 
         selected = self.unit_list.currentRow()
-        #print(selected)
 
-        db_unit = UnitService.get_attributes_by_id(selected + 1)
-
-        #print(db_unit.name, db_unit.id, db_unit.charclass)
+        #db_unit = UnitService.get_attributes_by_id(selected + 1)
+        db_unit = UnitService.get_unit_by_row(selected)
+        #print(db_unit)
 
         return db_unit
     
@@ -269,11 +262,17 @@ class UnitGUI(QWidget):
         pass
 
     def display_level_up(self):
+        unit = self.get_selected_unit()
+        UnitService.level_up(unit)
+        UnitService.refresh_stats_noncombat(unit)
+
+        self.selection_changed()
         pass
 
     def dismiss_unit(self):
         unit = self.get_selected_unit()
-        Unit.unit_list.remove(unit)
+
+        UnitService.dismiss(unit)
 
         self.unit_list.setCurrentItem(None)
         self.unit_stats_label.clear()
