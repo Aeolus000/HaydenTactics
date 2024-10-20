@@ -31,14 +31,13 @@ class UnitTable(Base):
     __tablename__ = "unit_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    #unit_id: Mapped[int] = mapped_column()
     name: Mapped[str] = mapped_column(String(30))
     charclass: Mapped[str] = mapped_column(String(30))
     level: Mapped[int] = mapped_column(nullable = True)
 
-    initiative: Mapped[int] = mapped_column(nullable = True)
+    team: Mapped[int] = mapped_column(nullable = True)
+
     exp: Mapped[int] = mapped_column(nullable = True)
-    action_points: Mapped[int] = mapped_column(nullable = True)
 
     is_alive: Mapped[bool] = mapped_column(nullable = True)
 
@@ -74,50 +73,38 @@ class UnitTable(Base):
     #def __repr__(self) -> str:
         #return f"{self.unit_id}"
 
+class CharClassTable(Base):
+    __tablename__ = "charclass_table"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    charclass: Mapped[str] = mapped_column(String(30))
+
+class UnitEquipmentTable(Base):
+            __tablename__ = "unit_equipment_table"
+            id: Mapped[int] = mapped_column(primary_key=True)
+            unit_id: Mapped[int] = mapped_column(ForeignKey("unit_table.id"))
+            weapon_slot1: Mapped[int] = mapped_column(nullable = True)
+            weapon_slot2: Mapped[int] = mapped_column(nullable = True)
+            weapon_slot3: Mapped[int] = mapped_column(nullable = True)
+            helmet_slot: Mapped[int] = mapped_column(nullable = True)
+            armor_slot: Mapped[int] = mapped_column(nullable = True)
+            leg_slot: Mapped[int] = mapped_column(nullable = True)
+            ring_slot: Mapped[int] = mapped_column(nullable = True)
 
 
 
-# unit = Unit.Unit("Hayden", "Shaman", 1)
-
-#unit_list = Unit.unit_list
-
-# with Session(engine) as session:
-
-#     unit1 = UnitTable(
-#         unit_id=unit.unit_id,
-#         name=unit.name,
-#         charclass=unit.charclass,
-#         level=unit.level,
-#         base_str=unit.base_str,
-#         base_dex=unit.base_dex,
-    # )
-    # unit = Unit(
-    #     unit_id=1,
-    #     name="Hayden",
-    #     charclass="Weaponmaster",
-    #     level=1,
-    # )
-    # unit2 = Unit(
-    #     unit_id=2,
-    #     name="Jessica",
-    #     charclass="Elementalist",
-    #     level=1,
-    # )
-
-    #session.add_all([unit, unit2])
-    # session.add(unit1)
-
-    # session.commit()
+# class PlayerInventoryTable(Base):
+#     __tablename__ = "player_inventory_table"
+#     pass
 
 
-    # #stmt = select(UnitTable).where(UnitTable.id >= 1)
-    # result = session.execute(select(UnitTable).order_by(UnitTable.id))
+class BaseWeaponTable(Base):
+    __tablename__ = "base_weapon_table"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30))
+    weight: Mapped[int] = mapped_column(nullable = True)
+    value: Mapped[int] = mapped_column(nullable = True)
+    handed: Mapped[str] = mapped_column(String(30))
+    damage_type: Mapped[str] = mapped_column(nullable = True)
+    damage_range: Mapped[int] = mapped_column(nullable = True)
 
-
-    # print(result.all())
-
-    # print(unit1.name)
-
-    #selected_unit = result.all()[0]
-    #print(selected_unit.name)
-    #print(UnitTable.query.all())

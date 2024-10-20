@@ -5,11 +5,27 @@ import Stats
 import Items
 import Models
 
+from enum import Enum
+
 nameslist = ["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'jin", "Byron", "Jaeremy", "Artemisia", "Judica", 
              "Adalinde", "Olivia", "Garth", "Erebus", "Marius", "Daniel", "Selene", "Liam", "Hayden", "Jessica", "Kayloc", 
              "Tetsedah", "Soultrax", "Tsoul", "Anathros", "Sathson", "Brody", "Cameron", "Brock", "Kevin", "Alessandro", 
              "Madeline", "Thomas", "Delwin Praeg", "Ryan", "Justin", "McCray", "Chase", "Elyse", "Noah", "Stephen", "Carlton", "Honeyglow", "Austyn"]
 charclasses = ["Weaponmaster", "Shaman", "Necromancer", "Monk", "Demonologist", "Elementalist", "Rogue", "Hemomancer", "Astromancer", "Crusader", "Priest"]
+
+# CharClassesEnum
+#     Weaponmaster = 1
+#     Shaman = 2
+#     Necromancer = 3
+#     Monk = 4
+#     Demonologist = 5
+#     Elementalist = 6
+#     Rogue = 7
+#     Hemomancer = 8
+#     Astromancer = 9
+#     Crusader = 10
+#     Priest = 11
+
 
 enemycharclasses = ["Goon", "Gob", "Skeleton"]
 

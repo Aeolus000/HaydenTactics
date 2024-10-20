@@ -7,11 +7,10 @@ from sqlalchemy import create_engine, update
 import Unit
 import Items
 import Stats
-from Models import UnitTable, Base
+from Models import *
 
 
 class UnitService:
-
     @classmethod
     def generate_unit_stats(self):
 
@@ -58,7 +57,7 @@ class UnitService:
         
 
     @classmethod
-    def create(self, name, charclass, level = 1, stats = None):
+    def create(self, name, charclass, level = 1, stats = None, team = 0):
         
         if not stats:
             stats = self.generate_unit_stats()
@@ -71,9 +70,9 @@ class UnitService:
                 name=name,
                 charclass=charclass,
                 level=level,
+                team=team,
                 exp=0,
                 is_alive=True,
-                action_points=0,
                 base_str=stats['base_str'],
                 base_dex=stats['base_dex'],
                 base_spd=stats['base_spd'],
@@ -91,18 +90,10 @@ class UnitService:
                 base_phys_res=stats['base_phys_res'],
                 base_mag_res=stats['base_mag_res'],
                 base_evasion=stats['base_evasion'],
-                initiative=stats['initiative'],
 
             )
             session.add(table_unit)
             session.commit()
-
-            #print(table_unit.id)
-
-            #stmt = select('*').select_from(Models.UnitTable)
-            #result = session.execute(stmt).fetchall
-            #print(result.one())
-            #print(result)
 
     @classmethod
     def generate_random_unit(self):
@@ -128,9 +119,49 @@ class UnitService:
     def get_all(self):
         with Session(engine) as session:
 
+            units = session.query(UnitTable).all()
+
+        return units
+    
+    @classmethod
+    def get_all_as_dict(self):
+
+        unitlist = []
+        with Session(engine) as session:
             test = session.query(UnitTable).all()
 
-        return test
+            for item in test:
+                unitdict = {'id': item.id,
+                        'name': item.name,
+                        'charclass': item.charclass,
+                        'level': item.level,
+                        'team': item.team,
+                        'exp': item.exp,
+                        'is_alive': item.is_alive,
+                        'action_points': 0,
+                        'max_hp': item.max_hp,
+                        'current_hp': item.current_hp,
+                        'max_mana': item.max_mana,
+                        'current_mana': item.current_mana,
+                        'melee_hit_chance': item.melee_hit_chance,
+                        'ranged_hit_chance': item.ranged_hit_chance,
+                        'base_phys_res': item.base_phys_res,
+                        'base_mag_res': item.base_mag_res,
+                        'base_evasion': 0,
+                        'initiative': 0,
+                        'base_str': item.base_str,
+                        'base_dex': item.base_dex,
+                        'base_spd': item.base_spd,
+                        'base_vit': item.base_vit,
+                        'base_con': item.base_con,
+                        'base_int': item.base_int,
+                        'base_mnd': item.base_mnd,
+                        'base_res': item.base_res,
+                        }
+            
+                unitlist.append(unitdict)
+
+        return unitlist
 
     def get_attributes_by_id(unit_id):
 
@@ -146,7 +177,7 @@ class UnitService:
 
             unitslol = session.query(UnitTable).all()              ### how do i get a specific row by number???
             unit = unitslol[selection]
-            print(unit)
+            #print(unit)
     
         return unit
     
@@ -198,6 +229,94 @@ class UnitService:
 
             session.commit()
             session.flush()
+
+
+class WeaponService:
+    def populate_weapons():
+        with Session(engine) as session:
+
+            weapons = [
+                {
+                    'name': 'Iron Short Sword',
+                    'weight': 4, 
+                    'value': 50, 
+                    'handed': "one-handed", 
+                    'damage_type': "Slashing", 
+                    'damage_range': 8
+                },
+                {
+                    'name': 'Iron Greatsword',
+                    'weight': 8, 
+                    'value': 80, 
+                    'handed': "two-handed", 
+                    'damage_type': "Slashing", 
+                    'damage_range': 14
+                },
+                {
+                    'name': 'Iron Rapier',
+                    'weight': 3, 
+                    'value': 60, 
+                    'handed': "one-handed", 
+                    'damage_type': "Piercing", 
+                    'damage_range': 7
+                },
+                {
+                    'name': 'Iron Morning Star',
+                    'weight': 5, 
+                    'value': 60, 
+                    'handed': "one-handed", 
+                    'damage_type': "Crushing", 
+                    'damage_range': 6
+                },
+                {
+                    'name': 'Iron Handaxe',
+                    'weight': 3, 
+                    'value': 40, 
+                    'handed': "one-handed", 
+                    'damage_type': "Slashing", 
+                    'damage_range': 6
+                },
+                {
+                    'name': 'Iron Spear',
+                    'weight': 5, 
+                    'value': 75, 
+                    'handed': "one-handed", 
+                    'damage_type': "Piercing", 
+                    'damage_range': 6
+                },
+                {
+                    'name': 'Iron Halberd',
+                    'weight': 9, 
+                    'value': 100, 
+                    'handed': "two-handed", 
+                    'damage_type': "Slashing", 
+                    'damage_range': 8
+                },
+                {
+                    'name': 'Wooden Staff',
+                    'weight': 4, 
+                    'value': 25, 
+                    'handed': "one-handed", 
+                    'damage_type': "Crushing", 
+                    'damage_range': 4
+                },
+            ]
+
+            for weapon in weapons:
+                db_weapon = BaseWeaponTable(
+                    name=weapon['name'],
+                    weight=weapon['weight'],
+                    value=weapon['value'],
+                    handed=weapon['handed'],
+                    damage_type=weapon['damage_type'],
+                    damage_range=weapon['damage_range'],
+                )
+
+                session.add(db_weapon)
+            session.commit()
+
+
+
 
 
 engine = create_engine("sqlite:///database.db", echo=False)
