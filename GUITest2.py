@@ -1,6 +1,7 @@
 import sys
 import sqlite3
 from PyQt5 import QtCore
+import PyQt5
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -16,7 +17,6 @@ from Service import *
 from sqlalchemy import String, select, ForeignKey
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-
 
 class CharacterCreation(QWidget):
 
@@ -164,12 +164,50 @@ class CombatActions(QWidget):
 
         self.ability_button.setDisabled(True)
 
+    def attack_button_pressed(self):
+        turn_unit["action_points"] = turn_unit["action_points"] - 1
+        #print(f"action points: {turn_unit["action_points"]}")
+
+        if turn_unit["action_points"] == 0:
+            self.attack_button.setDisabled(True)
+
+        attacker = turn_unit
+        defender = combat_gui.get_selected_unit()
+        hitroll, hit, damage = Combat.attack(attacker, defender)
+
+        print(f"{attacker['name']}, roll: {hitroll}, hitchance (low rolls whiff): {Combat.get_hit_chance(attacker)}")
+        if hit == True:
+            hit = f"Succeeds! {defender['name']} took {damage} damage."
+        elif hit == False:
+            hit = "Misses!"
+
+        combat_gui.message.setText(f"{turn_unit['name']}'s attack \n{hit}")
+        
+        combat_gui.target_list_selection_changed()
+        #combat_gui.refresh_target_list()
+
+        combat_gui.end_turn_check()
+
+    def move_button_pressed(self):
+        turn_unit["move_points"] = turn_unit["move_points"] - 1
+
+        if turn_unit["move_points"] == 0:
+            self.move_button.setDisabled(True)
+
+            combat_gui.end_turn_check()
+
+    def wait_button_pressed(self):
+        turn_unit["wait"] = True
+
+        combat_gui.end_turn_check()
+
 class CombatGUI(QWidget):
+
     def __init__(self):
         super().__init__()
 
         self.turn_list_label = QLabel(self)
-        self.turn_list = QListWidget(self)
+        self.turn_list = QTableWidget(self)
 
         self.target_list_label = QLabel(self)
         self.target_list = QListWidget(self)
@@ -183,19 +221,28 @@ class CombatGUI(QWidget):
         self.message = QLabel(self)
         
         self.combat_actions = CombatActions()
-        
 
+        self.in_battle = True
         self.initUI()
 
     def initUI(self):
-
         self.turn_count = 1
-        self.in_battle = True
-        self.taking_turn = False
         self.unitlist = UnitService.get_all_as_dict()
+
+        i = 0
+        for unit in self.unitlist:
+            if unit["team"] > 0:
+                i += 1
+        
+        if i == 0:
+            UnitService.generate_enemy_team()
+            self.unitlist = UnitService.get_all_as_dict()
+
         self.init_list = []
-
-
+        global in_battle
+        global taking_turn
+        in_battle = True
+        taking_turn = False
 
         self.setWindowTitle("Combat")
 
@@ -204,6 +251,8 @@ class CombatGUI(QWidget):
         grid.addWidget(self.turn_list, 1, 0)
 
         self.turn_list_label.setText("Turn Order")
+        self.turn_list.setColumnCount(2)
+        self.turn_list.setRowCount(50)
 
         grid.addWidget(self.target_list_label, 0, 2)
         grid.addWidget(self.target_list, 1, 2)
@@ -224,7 +273,7 @@ class CombatGUI(QWidget):
 
         grid.addWidget(self.combat_actions, 3, 1)
 
-        self.message.setStyleSheet("font-family: calibri; font-size: 20px")
+        self.message.setStyleSheet("font-family: calibri; font-size: 16px")
 
         self.setLayout(grid)
 
@@ -233,41 +282,124 @@ class CombatGUI(QWidget):
 
         self.message.setText("Damage Stuff Goes Here")
 
-        self.refresh_turn_order()
-
-        self.turn_list.setDisabled(True) 
-
-        i = 0
-        # while self.in_battle == True:
-        while i < 5:
-            self.init_list = Combat.initiative_tick(unitlist=self.unitlist)
-            self.taking_turn = True
-
-            
-
-            while self.taking_turn == True:
-                
-                for unit in self.init_list:
-
-                    self.refresh_turn_order()
-                    print(unit["name"], unit["initiative"])
-
-                self.taking_turn = False
-
-            i += 1
-            # self.in_battle = False
-
-
+        self.turn_list.setDisabled(False)
+        self.turn_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         
+        self.combat_actions.attack_button.clicked.connect(self.combat_actions.attack_button_pressed)
 
+        self.combat_actions.move_button.clicked.connect(self.combat_actions.move_button_pressed)
+        self.combat_actions.wait_button.clicked.connect(self.combat_actions.wait_button_pressed)
+        self.target_list.itemClicked.connect(self.target_list_selection_changed)
+        self.refresh_turn_order()
+        self.run_tick()
+
+    def end_turn_check(self):
+        turn_unit["initiative"], end = Combat.end_initiative(turn_unit)
+
+        if end == True:
+            self.end_turn()
+        elif end == False:
+            pass 
+
+    def end_turn(self):
+
+        #print(turn_unit["name"], turn_unit["initiative"])
+        global in_battle
+        global taking_turn
+        in_battle = True
+        taking_turn = False
+
+        win = Combat.check_victory(self.init_list)
+        if win == None:
+            self.run_tick()
+        elif win == True:
+            self.message.setText("!!!VICTORY!!!")
+            self.end_battle()
+        elif win == False:
+            self.message.setText("!!!DEFEAT!!!")
+            self.end_battle()
+
+    def end_battle(self):
+        self.combat_actions.move_button.setDisabled(True)
+        self.combat_actions.wait_button.setDisabled(True)
+        self.combat_actions.attack_button.setDisabled(True)
+        self.refresh_target_list()
+        self.target_list_selection_changed()
+        turn_unit['action_points'] = 0
+        turn_unit['move_points'] = 0
+        turn_unit['wait'] = True
+
+
+    def run_tick(self):
+        global in_battle
+        global taking_turn
+
+        while in_battle == True:
+
+            if taking_turn == False:
+
+                self.init_list, taking_turn = Combat.initiative_tick(unitlist=self.unitlist)
+
+                #print(taking_turn)
+
+            if taking_turn == True:
+                self.refresh_turn_order()
+                in_battle = False
+                self.set_turn()
+
+    def set_turn(self):
+            
+            global turn_unit
+
+            self.target_list.setCurrentItem(None)
+            self.opponent_unit_stats_label.setText(None)
+            self.opponent_unit_combat_stats_label.setText(None)
+            
+            self.refresh_target_list()
+            self.combat_actions.attack_button.setDisabled(False)
+            self.combat_actions.move_button.setDisabled(False)
+            self.combat_actions.wait_button.setDisabled(False)
+
+            turn_unit = self.init_list[0]
+            
+            if turn_unit['is_alive'] == False:
+                turn_unit["action_points"] = 0
+                turn_unit["move_points"] = 0
+                turn_unit["wait"] = False
+                self.end_turn_check()
+            elif turn_unit['is_alive'] == True:
+                turn_unit["action_points"] = 2
+                turn_unit["move_points"] = 1
+                turn_unit["wait"] = False
+
+            self.turn_unit_stats_label.setText(f"""{turn_unit['name']}'s Turn\n\nStrength:\t\t{turn_unit['base_str']}\nDexterity:\t{turn_unit['base_dex']}\nSpeed:\t\t{turn_unit['base_spd']}\nVitality:\t\t{turn_unit['base_vit']}\nConstitution:\t{turn_unit['base_con']}\nIntelligence:\t{turn_unit['base_int']}\nMind:\t\t{turn_unit['base_mnd']}\nResistance:\t{turn_unit['base_res']}""")
+            self.turn_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{turn_unit['current_hp']} / {turn_unit['max_hp']}\nMana:\t\t{turn_unit['current_mana']} / {turn_unit['max_mana']}\n\nBase Melee Damage: {Combat.get_base_melee_damage(turn_unit)}\nBase Phys Resistance: {Combat.get_base_melee_defense(turn_unit)}%""")
         
     def refresh_turn_order(self):
 
         self.turn_list.clear()
 
+        self.turn_list.setRowCount(len(self.init_list))
+        header1 = QTableWidgetItem("Unit")
+        header2 = QTableWidgetItem("Initiative")
+        self.turn_list.setHorizontalHeaderItem(0, header1)
+        self.turn_list.setHorizontalHeaderItem(1, header2)
+
+        row = -1
+
         for unit in self.init_list:
-            self.turn_list.addItem(f"{unit["id"]} {unit["name"]}\t\t Initiative: {unit["initiative"]}")
+            blah = QTableWidgetItem(f"{unit["name"]}")
+            blah2 = QTableWidgetItem(f"{unit["initiative"]}")
+            if unit["team"] > 0:
+                blah.setBackground(Qt.red)
+                blah2.setBackground(Qt.red)
+
+            self.turn_list.setItem(row + 1, 0, blah)
+            self.turn_list.setItem(row + 1, 1, blah2)
+            row += 1
+
+            #self.turn_list.addItem(f"{unit["id"]} {unit["name"]}\t Initiative: {unit["initiative"]}")
 
         # units = UnitService.get_all()
         # for unit in units:
@@ -277,24 +409,42 @@ class CombatGUI(QWidget):
     def get_selected_unit(self):
 
         selected = self.target_list.currentRow()
+        unit = self.init_list[selected]
 
-        #db_unit = UnitService.get_attributes_by_id(selected + 1)
-        db_unit = UnitService.get_unit_by_row(selected)
-
-        return db_unit
+        return unit
     
+    def refresh_target_list(self):
+        self.target_list.clear()
+        units = self.init_list
+        turn_unit = self.init_list[0]
+
+        for unit in units:
+            if unit["team"] == turn_unit["team"]:
+                if unit['is_alive'] == True:
+                    self.target_list.addItem(f"{unit["name"]}")
+                else:
+                    self.target_list.addItem(f"{unit["name"]} (DOWNED)")
+            else:
+                if unit['is_alive'] == True:
+                    self.target_list.addItem(f"{unit["name"]} (enemy)")
+                else:
+                    self.target_list.addItem(f"{unit["name"]} (enemy) (DOWNED)")
 
     def target_list_selection_changed(self):
 
-        unit = self.get_selected_unit()
+        selected = self.target_list.currentRow()
 
-        display_stats = Displays.text_format(unit, 0)
+        unit1 = self.init_list[selected]
 
-        self.opponent_unit_stats_label.setText(display_stats)
+        if unit1['is_alive'] == False:
+            self.combat_actions.attack_button.setDisabled(True)
+        elif unit1['is_alive'] == True and turn_unit['action_points'] > 0:
+            self.combat_actions.attack_button.setDisabled(False)
 
+        #display_stats = Displays.text_format(unit1, 0)
 
-
-
+        self.opponent_unit_stats_label.setText(f"""Target: {unit1['name']}\n\nStrength:\t\t{unit1['base_str']}\nDexterity:\t{unit1['base_dex']}\nSpeed:\t\t{unit1['base_spd']}\nVitality:\t\t{unit1['base_vit']}\nConstitution:\t{unit1['base_con']}\nIntelligence:\t{unit1['base_int']}\nMind:\t\t{unit1['base_mnd']}\nResistance:\t{unit1['base_res']}""")
+        self.opponent_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{unit1['current_hp']} / {unit1['max_hp']}\nMana:\t\t{unit1['current_mana']} / {unit1['max_mana']}\n\nBase Melee Damage: {Combat.get_base_melee_damage(unit1)}\nBase Phys Resistance: {Combat.get_base_melee_defense(unit1)}%""")
 
 class UnitGUI(QWidget):
     def __init__(self):
@@ -308,6 +458,8 @@ class UnitGUI(QWidget):
         self.message = QLabel(self)
 
         self.create_character_button = QPushButton("Create Character", self)
+
+        self.combat_button = QPushButton("FIGHT!", self)
 
         self.initUI()
 
@@ -325,6 +477,7 @@ class UnitGUI(QWidget):
         grid.addWidget(self.level_up_button, 1, 1)
         grid.addWidget(self.dismiss_unit_button, 2, 1)
         grid.addWidget(self.message, 0, 2)
+        grid.addWidget(self.combat_button, 0, 3)
 
         self.unit_list.setGeometry(0, 0, 200, 200)
         self.unit_stats_label.setGeometry(100, 100, 400, 600)
@@ -348,6 +501,8 @@ class UnitGUI(QWidget):
         self.refresh_unit_list()
 
         self.unit_stats_label.setAlignment(Qt.AlignTop)
+
+        self.combat_button.clicked.connect(self.display_combat)
 
 
     def selection_changed(self):
@@ -384,7 +539,8 @@ class UnitGUI(QWidget):
 
         units = UnitService.get_all()
         for unit in units:
-            self.unit_list.addItem(f"{unit.id} {unit.name}")
+            if unit.team == 0:
+                self.unit_list.addItem(f"{unit.id} {unit.name}")
 
     def get_selected_unit(self):
 
@@ -395,6 +551,17 @@ class UnitGUI(QWidget):
 
         return db_unit
     
+    def display_combat(self):
+        
+        global combat_gui
+        check = UnitService.get_all_as_dict()
+
+        if check == []:
+            self.unit_stats_label.setText("You have no Units!")
+            print("You have no Units!")
+        elif check:
+            combat_gui = CombatGUI()
+            combat_gui.show()
 
     def display_random_unit(self):
 
@@ -611,19 +778,20 @@ if __name__ == '__main__':
 
     Base.metadata.create_all(engine)
 
+
     player_inventory = Items.Inventory(50)
 
     app = QApplication(sys.argv)
     unit_gui = UnitGUI()
     unit_gui.show()
     inventory_gui = InventoryGUI()
-    inventory_gui.show()
+    #inventory_gui.show()
     character_creation = CharacterCreation()
     character_creation.initUI()
     character_creation.hide()
 
-    combat_gui = CombatGUI()
-    combat_gui.show()
+    # combat_gui = CombatGUI()
+    # combat_gui.show()
 
     #WeaponService.populate_weapons()
     sys.exit(app.exec_())

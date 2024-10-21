@@ -96,7 +96,7 @@ class UnitService:
             session.commit()
 
     @classmethod
-    def generate_random_unit(self):
+    def generate_random_unit(self, team = 0):
 
         if len(Unit.nameslist) <= 0:
             #randomname = "Out Of Names"
@@ -111,9 +111,15 @@ class UnitService:
         charclass = random.choice(Unit.charclasses)
 
 
-        randomized_unit = UnitService.create(randomname, charclass, 1)
+        randomized_unit = UnitService.create(randomname, charclass, 1, team = team)
         #randomunit = Unit(randomname, charclass, 1)
         return randomized_unit
+    
+    @classmethod
+    def generate_enemy_team(self):
+        self.generate_random_unit(team = 1)
+        self.generate_random_unit(team = 1)
+        self.generate_random_unit(team = 1)
 
     @classmethod
     def get_all(self):
@@ -139,6 +145,8 @@ class UnitService:
                         'exp': item.exp,
                         'is_alive': item.is_alive,
                         'action_points': 0,
+                        'move_points': 0,
+                        'wait': False,
                         'max_hp': item.max_hp,
                         'current_hp': item.current_hp,
                         'max_mana': item.max_mana,
