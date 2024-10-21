@@ -8,7 +8,12 @@ from PyQt5.QtWidgets import *
 import Unit
 import Stats
 import Items
+#from Models import Base
+import Models
+import Service
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 
 class CharacterCreation(QWidget):
@@ -251,6 +256,7 @@ class UnitGUI(QWidget):
         unit = Unit.generate_random_unit()
 
         self.refresh_unit_list()
+
         inventory_gui.refresh_unit_list()
 
         self.dismiss_unit_button.setDisabled(True)
@@ -565,6 +571,10 @@ if __name__ == '__main__':
     #unit_gui.show()
 
         ## testing by creating a bunch of stuff
+
+    Models.Base.metadata.create_all(Service.engine)
+
+
     Unit.generate_random_unit()
     Unit.generate_random_unit()
     unittest = Unit.generate_random_unit()
@@ -592,3 +602,4 @@ if __name__ == '__main__':
     character_creation.initUI()
     character_creation.hide()
     sys.exit(app.exec_())
+

@@ -3,12 +3,29 @@ import sqlite3
 import random
 import Stats
 import Items
+import Models
+
+from enum import Enum
 
 nameslist = ["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'jin", "Byron", "Jaeremy", "Artemisia", "Judica", 
              "Adalinde", "Olivia", "Garth", "Erebus", "Marius", "Daniel", "Selene", "Liam", "Hayden", "Jessica", "Kayloc", 
              "Tetsedah", "Soultrax", "Tsoul", "Anathros", "Sathson", "Brody", "Cameron", "Brock", "Kevin", "Alessandro", 
              "Madeline", "Thomas", "Delwin Praeg", "Ryan", "Justin", "McCray", "Chase", "Elyse", "Noah", "Stephen", "Carlton", "Honeyglow", "Austyn"]
 charclasses = ["Weaponmaster", "Shaman", "Necromancer", "Monk", "Demonologist", "Elementalist", "Rogue", "Hemomancer", "Astromancer", "Crusader", "Priest"]
+
+# CharClassesEnum
+#     Weaponmaster = 1
+#     Shaman = 2
+#     Necromancer = 3
+#     Monk = 4
+#     Demonologist = 5
+#     Elementalist = 6
+#     Rogue = 7
+#     Hemomancer = 8
+#     Astromancer = 9
+#     Crusader = 10
+#     Priest = 11
+
 
 enemycharclasses = ["Goon", "Gob", "Skeleton"]
 
@@ -25,7 +42,7 @@ class Unit:
         self.level = level
 
         self.exp = 0
-        self.alive = bool
+        self.is_alive = bool
         self.action_points = 0
 
         # base stat roll
@@ -243,6 +260,8 @@ def generate_random_unit():
 
     charclass = random.choice(charclasses)
 
+
+    #Service.UnitService.create("Hayden", "Shaman", 1)
     randomunit = Unit(randomname, charclass, 1)
     unit_list.append(randomunit)
     return randomunit
