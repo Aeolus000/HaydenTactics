@@ -1,5 +1,5 @@
 import random
-from sqlalchemy import String, select, ForeignKey
+from sqlalchemy import String, select, ForeignKey, delete
 from sqlalchemy.orm import Session, mapped_column
 from sqlalchemy import create_engine, update
 
@@ -121,6 +121,36 @@ class UnitService:
         self.generate_random_unit(team = 1)
         self.generate_random_unit(team = 1)
 
+
+
+    @classmethod
+    def get_nonplayer_units(self):
+        with Session(engine) as session:
+
+            units = session.query(UnitTable).filter(UnitTable.team > 0)
+
+            session.flush()
+
+        return units
+    
+    @classmethod
+    def delete_nonplayer_units(self):
+
+        with Session(engine) as session:
+
+            #session.query(UnitTable).filter(UnitTable.team >= 1).delete
+            stmt = delete(UnitTable).where(UnitTable.team >= 1)
+            session.execute(stmt)
+            #session.delete(UnitTable).where(UnitTable.team >= 1)
+            #units = select(UnitTable).where(UnitTable.team >= 1)
+            #session.delete(units)
+
+            session.commit()
+            session.flush()
+
+
+
+
     @classmethod
     def get_all(self):
         with Session(engine) as session:
@@ -185,7 +215,6 @@ class UnitService:
 
             unitslol = session.query(UnitTable).all()              ### how do i get a specific row by number???
             unit = unitslol[selection]
-            #print(unit)
     
         return unit
     
