@@ -330,6 +330,8 @@ class CombatGUI(QWidget):
         turn_unit['move_points'] = 0
         turn_unit['wait'] = True
 
+        UnitService.delete_nonplayer_units()
+
 
     def run_tick(self):
         global in_battle
@@ -506,15 +508,9 @@ class UnitGUI(QWidget):
 
 
     def selection_changed(self):
-
         unit = self.get_selected_unit()
-
         display_stats = Displays.text_format(unit, 1)
-
         self.unit_stats_label.setText(display_stats)
-
-
-
         #self.unit_stats_label.setText(unit_stats)
 
         if self.unit_list.currentItem() == None:
@@ -545,14 +541,11 @@ class UnitGUI(QWidget):
     def get_selected_unit(self):
 
         selected = self.unit_list.currentRow()
-
         #db_unit = UnitService.get_attributes_by_id(selected + 1)
         db_unit = UnitService.get_unit_by_row(selected)
-
         return db_unit
     
     def display_combat(self):
-        
         global combat_gui
         check = UnitService.get_all_as_dict()
 
@@ -564,9 +557,7 @@ class UnitGUI(QWidget):
             combat_gui.show()
 
     def display_random_unit(self):
-
         unit = UnitService.generate_random_unit()
-
         self.refresh_unit_list()
 
         self.dismiss_unit_button.setDisabled(True)
@@ -583,22 +574,17 @@ class UnitGUI(QWidget):
         unit = self.get_selected_unit()
         UnitService.level_up(unit)
         UnitService.refresh_stats_noncombat(unit)
-
         self.selection_changed()
 
     def dismiss_unit(self):
         unit = self.get_selected_unit()
-
         UnitService.dismiss(unit)
-
         self.unit_list.setCurrentItem(None)
         self.unit_stats_label.clear()
         self.dismiss_unit_button.setDisabled(True)
         self.level_up_button.setDisabled(True)
-
         self.refresh_unit_list()
         
-
 class InventoryGUI(QWidget):
     def __init__(self):
         super().__init__()

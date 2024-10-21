@@ -120,21 +120,35 @@ def attack(attacker, defender):
 
     return hitroll, hit, round(damage)
 
+def separate_teams(init_list):
+    team1 = []
+    team2 = []
+        
+    for unit in init_list:
+        if unit['team'] == 0:
+            team1.append(unit)
+        elif unit['team'] >= 1:
+            team2.append(unit)
+
+    return team1, team2
+
 def check_victory(init_list):
+    team1, team2 = separate_teams(init_list)
+    win = bool
     team1dead = 0
     team2dead = 0
-    win = bool
 
-    for unit in init_list:
-        if unit['team'] == 1 and unit['is_alive'] == False:
-            team2dead += 1
-        if unit['team'] == 0 and unit['is_alive'] == False:
+    for unit in team1:
+        if unit['is_alive'] == False:
             team1dead += 1
+    for unit in team2:
+        if unit['is_alive'] == False:
+            team2dead += 1
 
-    if team2dead >= 3:
+    if team2dead >= len(team2):
         win = True
         return win
-    if team1dead >= 3:
+    if team1dead >= len(team1):
         win = False
         return win
 
