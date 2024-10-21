@@ -1,3 +1,15 @@
+#######                                                                                     #######
+#######                                                                                     #######
+#######                                                                                     #######
+#######                                                                                     #######
+#######                                                                                     #######
+#######     This file is no longer really used, but it has a lot of the groundwork          #######
+#######     of the rules and numbers I used, so I keep it on the side to keep myself        #######
+#######     consistent and organized. Check Combat.py and Models/Services                   #######
+
+
+
+
 import sqlite3
 
 import random
