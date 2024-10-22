@@ -1,23 +1,5 @@
 project todo:
 
-create a proper check_victory
-	- create a method that creates 2 separate lists that are each member of each team. Then we compare with a for loop how many units have is_alive = False, and match that number to the len of the list. Then check to see if those are equal, and whoever is, return the variable to show who wins.
-
-delete enemy team after battle ends or window closes. 
-	- have to do a query that queries every row that isn't team = 0, then delete those rows.
-	- current behavior = dismiss unit is done by currentRow of the QListTable, so if you make any units after the fight, it starts deleting units you can't see (from the enemy team) and rearranging the unit IDs, crazy stuff starts to happen.
-	
-implement (or decide) to add base class evasion
-	- have to create a dictionary of the classes and then what their base evasion for phys and magic are. 
-
-implement mana system
-	- have mana start at zero and regen each turn.
-	
-Death timer
-	- make it so if a downed unit passes 3 turns, they are considered True Dead. Maybe make another bool on the unit dictionary called permadeath or something.
-	- create a function that checks if the current turn unit is down, and if they are, increment a variable by 1. If it hits 3, set the permadeath = True. 
-	- or just delete them entirely from the init_list. Might be easier.
-
 ability
 	- first ability should be the Priest ability to simply heal a unit. You should select a friendly unit and it should heal them.
 	- the ability should cost low mana to make it easy to test, and have a formula for how much it heals based on base_int.
@@ -36,3 +18,30 @@ shop
 	- create a player inventory that holds items that are not on any unit.
 	- create a shop that randomly generates a list of buyable items.
 	- sell inventory items for War Funds or spend War Funds to buy things. 
+
+
+ability flow:
+
+
+Turn_unit chooses from a dropdown list of their equipped abilities (make a tooltip underneath it)
+
+turn_unit clicks the "ability" button on combat, with a target selected
+
+CHECK:
+does turn_unit have enough mana to cast this?
+does turn_unit have enough action_points to cast this?
+	if no, cancel
+(where will the mana cost and action point cost come from? Will I reference a class object of an ability?)
+
+
+def Heal(caster, target)
+
+	caster mana - mana_cost
+	caster action_points - action_points
+
+	target health + heal
+	done
+
+
+
+

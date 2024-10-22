@@ -10,28 +10,30 @@ import random
 
 
 
+def create_unitlist():
+    unitlist = UnitService.get_all_as_dict()
 
-#turn_count = 1
-#in_battle = True
+    ### apply class evasion stats to unit's base evasion
+    for unit in unitlist:
+        evasion_stat = Stats.charclass_evasion[unit['charclass']]
+        print(f"initial phys res {unit['base_phys_evasion']}")
+        print(f"initial mag res {unit['base_mag_evasion']}")
 
-unitlist = UnitService.get_all_as_dict()
+        unit['base_phys_evasion'] = unit['base_phys_evasion'] + evasion_stat[0]
+        unit['base_mag_evasion'] = unit['base_mag_evasion'] + evasion_stat[1]
 
-
-
-#print(unitlist)
-#print(len(unitlist))
-
+        print(unit['base_phys_evasion'])
+        print(unit['base_mag_evasion'])
+    
+    return unitlist
 
 def initiative_tick(unitlist):
     turn = False
 
     for unit in unitlist:
         if unit["initiative"] >= 100:
-            print(f"TURN for {unit["name"]} is up!")
+            #print(f"TURN for {unit["name"]} is up!")
             turn = True
-            if unit['is_alive'] == False:
-                print(f"{unit["name"]} is Dead, skipping turn.")
-
 
     for unit in unitlist:
         if not turn:
@@ -84,12 +86,12 @@ def get_hit_chance(attacker, defender = None, is_ranged = False):
 
     if not is_ranged:
         if defender:
-            finalhitchance = (attacker['melee_hit_chance'])
+            finalhitchance = (attacker['melee_hit_chance'] - defender['base_phys_evasion'])
         else: 
             finalhitchance = attacker['melee_hit_chance']
     elif is_ranged:
         if defender:
-            finalhitchance = attacker['ranged_hit_chance']
+            finalhitchance = (attacker['ranged_hit_chance'] - defender['base_phys_evasion'])
         else:
             finalhitchance = attacker['ranged_hit_chance']
 
@@ -152,5 +154,24 @@ def check_victory(init_list):
         win = False
         return win
 
+def mana_regen(turn_unit):
+
+    turn_unit['current_mana'] = turn_unit['current_mana'] + round((turn_unit['max_mana'] * 0.1))
+
+    if turn_unit['current_mana'] >= turn_unit['max_mana']:
+        turn_unit['current_mana'] = turn_unit['max_mana']
+
+    return turn_unit['current_mana']
+
+def permadeath_check(turn_unit):
+
+    if turn_unit['death_timer'] >= 3:
+        turn_unit['permadeath'] = True
+    
+    return turn_unit['permadeath']
             
 
+
+
+if __name__ == '__main__':
+    create_unitlist()

@@ -22,8 +22,6 @@ import Items
 import Stats
 
 
-
-
 class Base(DeclarativeBase):
     pass
 
@@ -34,13 +32,10 @@ class UnitTable(Base):
     name: Mapped[str] = mapped_column(String(30))
     charclass: Mapped[str] = mapped_column(String(30))
     level: Mapped[int] = mapped_column(nullable = True)
-
     team: Mapped[int] = mapped_column(nullable = True)
-
     exp: Mapped[int] = mapped_column(nullable = True)
 
     is_alive: Mapped[bool] = mapped_column(nullable = True)
-
     base_str: Mapped[int] = mapped_column(nullable = True)
     base_dex: Mapped[int] = mapped_column(nullable = True)
     base_spd: Mapped[int] = mapped_column(nullable = True)
@@ -60,7 +55,13 @@ class UnitTable(Base):
 
     base_phys_res: Mapped[int] = mapped_column(nullable = True)
     base_mag_res: Mapped[int] = mapped_column(nullable = True)
-    base_evasion: Mapped[int] = mapped_column(nullable = True)
+    base_phys_evasion: Mapped[int] = mapped_column(nullable = True)
+    base_mag_evasion: Mapped[int] = mapped_column(nullable = True)
+
+    ability1: Mapped[int] = mapped_column(nullable = True)
+    ability2: Mapped[int] = mapped_column(nullable = True)
+    ability3: Mapped[int] = mapped_column(nullable = True)
+    ability4: Mapped[int] = mapped_column(nullable = True)
 
     # weapon_slot1: ?
     # weapon_slot2: ?
@@ -91,8 +92,6 @@ class UnitEquipmentTable(Base):
             leg_slot: Mapped[int] = mapped_column(nullable = True)
             ring_slot: Mapped[int] = mapped_column(nullable = True)
 
-
-
 # class PlayerInventoryTable(Base):
 #     __tablename__ = "player_inventory_table"
 #     pass
@@ -107,4 +106,20 @@ class BaseWeaponTable(Base):
     handed: Mapped[str] = mapped_column(String(30))
     damage_type: Mapped[str] = mapped_column(nullable = True)
     damage_range: Mapped[int] = mapped_column(nullable = True)
+
+
+class AbilityTable(Base):
+    __tablename__ = "ability_table"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30))
+    charclass: Mapped[str] = mapped_column(String(30))
+    mana_cost: Mapped[int] = mapped_column(nullable = True)
+    hp_cost: Mapped[int] = mapped_column(nullable = True)
+    action_cost: Mapped[int] = mapped_column(nullable = True)
+    target_type: Mapped[int] = mapped_column(nullable = True)
+    area_effect: Mapped[int] = mapped_column(nullable = True)
+    damage: Mapped[int] = mapped_column(nullable = True)
+    damage_element: Mapped[int] = mapped_column(nullable = True)
+      
+
 
