@@ -5,6 +5,7 @@ import PyQt5
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5 import QtGui
 
 import Unit
 import Stats
@@ -144,7 +145,6 @@ class CharacterCreation(QWidget):
 
             return unit
 
-
 class CombatActions(QWidget):
     def __init__(self):
         super().__init__()
@@ -153,12 +153,14 @@ class CombatActions(QWidget):
         self.attack_button = QPushButton("Attack", self)
         self.ability_button = QPushButton("Ability", self)
         self.wait_button = QPushButton("Wait", self)
+        self.ability_box = QComboBox(self)
 
         grid = QVBoxLayout()
         grid.addWidget(self.move_button)
         grid.addWidget(self.attack_button)
         grid.addWidget(self.ability_button)
         grid.addWidget(self.wait_button)
+        grid.addWidget(self.ability_box)
 
         self.setLayout(grid)
 
@@ -175,7 +177,7 @@ class CombatActions(QWidget):
         defender = combat_gui.get_selected_unit()
         hitroll, hit, damage = Combat.attack(attacker, defender)
 
-        print(f"{attacker['name']}, roll: {hitroll}, hitchance (low rolls whiff): {Combat.get_hit_chance(attacker)}")
+        print(f"{attacker['name']}, roll: {hitroll}, hitchance (low rolls whiff): {Combat.get_hit_chance(attacker, defender)}")
         if hit == True:
             hit = f"Succeeds! {defender['name']} took {damage} damage."
         elif hit == False:
@@ -227,7 +229,7 @@ class CombatGUI(QWidget):
 
     def initUI(self):
         self.turn_count = 1
-        self.unitlist = UnitService.get_all_as_dict()
+        self.unitlist = Combat.create_unitlist()
 
         i = 0
         for unit in self.unitlist:
@@ -236,9 +238,9 @@ class CombatGUI(QWidget):
         
         if i == 0:
             UnitService.generate_enemy_team()
-            self.unitlist = UnitService.get_all_as_dict()
+            self.unitlist = Combat.create_unitlist()
 
-        self.init_list = []
+        self.init_list = self.unitlist
         global in_battle
         global taking_turn
         in_battle = True
@@ -295,9 +297,21 @@ class CombatGUI(QWidget):
         self.run_tick()
 
     def end_turn_check(self):
+
         turn_unit["initiative"], end = Combat.end_initiative(turn_unit)
 
         if end == True:
+            if turn_unit['is_alive'] == False:
+                turn_unit['death_timer'] += 1
+                print(f"{turn_unit['name']} death counters: {turn_unit['death_timer']}")
+
+            Combat.permadeath_check(turn_unit)
+
+            if turn_unit['permadeath'] == True:
+                print(f"{turn_unit['name']} has reached 3 death counters, unit permanently lost.")
+                self.init_list.remove(turn_unit)
+                self.refresh_target_list()
+                self.refresh_turn_order()
             self.end_turn()
         elif end == False:
             pass 
@@ -332,7 +346,6 @@ class CombatGUI(QWidget):
 
         UnitService.delete_nonplayer_units()
 
-
     def run_tick(self):
         global in_battle
         global taking_turn
@@ -341,7 +354,7 @@ class CombatGUI(QWidget):
 
             if taking_turn == False:
 
-                self.init_list, taking_turn = Combat.initiative_tick(unitlist=self.unitlist)
+                self.init_list, taking_turn = Combat.initiative_tick(unitlist=self.init_list)
 
                 #print(taking_turn)
 
@@ -364,18 +377,21 @@ class CombatGUI(QWidget):
             self.combat_actions.wait_button.setDisabled(False)
 
             turn_unit = self.init_list[0]
+
+            Combat.mana_regen(turn_unit)
             
             if turn_unit['is_alive'] == False:
                 turn_unit["action_points"] = 0
                 turn_unit["move_points"] = 0
                 turn_unit["wait"] = False
                 self.end_turn_check()
+                
             elif turn_unit['is_alive'] == True:
                 turn_unit["action_points"] = 2
                 turn_unit["move_points"] = 1
                 turn_unit["wait"] = False
 
-            self.turn_unit_stats_label.setText(f"""{turn_unit['name']}'s Turn\n\nStrength:\t\t{turn_unit['base_str']}\nDexterity:\t{turn_unit['base_dex']}\nSpeed:\t\t{turn_unit['base_spd']}\nVitality:\t\t{turn_unit['base_vit']}\nConstitution:\t{turn_unit['base_con']}\nIntelligence:\t{turn_unit['base_int']}\nMind:\t\t{turn_unit['base_mnd']}\nResistance:\t{turn_unit['base_res']}""")
+            self.turn_unit_stats_label.setText(f"""{turn_unit['name']}'s Turn\n\nClass: {turn_unit['charclass']}\n\nStrength:\t\t{turn_unit['base_str']}\nDexterity:\t{turn_unit['base_dex']}\nSpeed:\t\t{turn_unit['base_spd']}\nVitality:\t\t{turn_unit['base_vit']}\nConstitution:\t{turn_unit['base_con']}\nIntelligence:\t{turn_unit['base_int']}\nMind:\t\t{turn_unit['base_mnd']}\nResistance:\t{turn_unit['base_res']}""")
             self.turn_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{turn_unit['current_hp']} / {turn_unit['max_hp']}\nMana:\t\t{turn_unit['current_mana']} / {turn_unit['max_mana']}\n\nBase Melee Damage: {Combat.get_base_melee_damage(turn_unit)}\nBase Phys Resistance: {Combat.get_base_melee_defense(turn_unit)}%""")
         
     def refresh_turn_order(self):
@@ -394,8 +410,12 @@ class CombatGUI(QWidget):
             blah = QTableWidgetItem(f"{unit["name"]}")
             blah2 = QTableWidgetItem(f"{unit["initiative"]}")
             if unit["team"] > 0:
-                blah.setBackground(Qt.red)
-                blah2.setBackground(Qt.red)
+                blah.setBackground(QtGui.QColor(243, 49, 8))
+                blah2.setBackground(QtGui.QColor(243, 49, 8))
+            elif unit["team"] == 0:
+                blah.setBackground(QtGui.QColor(8, 203, 243))
+                blah2.setBackground(QtGui.QColor(8, 203, 243))
+
 
             self.turn_list.setItem(row + 1, 0, blah)
             self.turn_list.setItem(row + 1, 1, blah2)
@@ -445,7 +465,7 @@ class CombatGUI(QWidget):
 
         #display_stats = Displays.text_format(unit1, 0)
 
-        self.opponent_unit_stats_label.setText(f"""Target: {unit1['name']}\n\nStrength:\t\t{unit1['base_str']}\nDexterity:\t{unit1['base_dex']}\nSpeed:\t\t{unit1['base_spd']}\nVitality:\t\t{unit1['base_vit']}\nConstitution:\t{unit1['base_con']}\nIntelligence:\t{unit1['base_int']}\nMind:\t\t{unit1['base_mnd']}\nResistance:\t{unit1['base_res']}""")
+        self.opponent_unit_stats_label.setText(f"""Target: {unit1['name']}\n\nClass: {unit1['charclass']}\n\nStrength:\t\t{unit1['base_str']}\nDexterity:\t{unit1['base_dex']}\nSpeed:\t\t{unit1['base_spd']}\nVitality:\t\t{unit1['base_vit']}\nConstitution:\t{unit1['base_con']}\nIntelligence:\t{unit1['base_int']}\nMind:\t\t{unit1['base_mnd']}\nResistance:\t{unit1['base_res']}""")
         self.opponent_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{unit1['current_hp']} / {unit1['max_hp']}\nMana:\t\t{unit1['current_mana']} / {unit1['max_mana']}\n\nBase Melee Damage: {Combat.get_base_melee_damage(unit1)}\nBase Phys Resistance: {Combat.get_base_melee_defense(unit1)}%""")
 
 class UnitGUI(QWidget):
@@ -733,7 +753,6 @@ class InventoryGUI(QWidget):
 
         pass
 
-
 class Displays:
 
     @staticmethod
@@ -763,7 +782,6 @@ class Displays:
 if __name__ == '__main__':
 
     Base.metadata.create_all(engine)
-
 
     player_inventory = Items.Inventory(50)
 

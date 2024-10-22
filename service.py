@@ -38,12 +38,13 @@ class UnitService:
             'max_hp': 75 + (4 * base_vit),
             'current_hp': 75 + (4 * base_vit),
             'max_mana': 10 + (2 * base_mnd),
-            'current_mana':10 + (2 * base_mnd),
+            'current_mana': 0,
             'melee_hit_chance': 70 + (base_dex / 5),
             'ranged_hit_chance': 50 + (base_dex / 4),
             'base_phys_res': (base_con * 0.5),
             'base_mag_res': (base_res * 0.5),
-            'base_evasion': 0,
+            'base_phys_evasion': 0,
+            'base_mag_evasion': 0,
             'initiative': 0,
             'weapon_slot1': None,
             'weapon_slot2': None,
@@ -53,8 +54,6 @@ class UnitService:
             'leg_slot': None,
             'ring_slot': None,
                 } 
-        
-        
 
     @classmethod
     def create(self, name, charclass, level = 1, stats = None, team = 0):
@@ -89,7 +88,8 @@ class UnitService:
                 ranged_hit_chance=stats['ranged_hit_chance'],
                 base_phys_res=stats['base_phys_res'],
                 base_mag_res=stats['base_mag_res'],
-                base_evasion=stats['base_evasion'],
+                base_phys_evasion=stats['base_phys_evasion'],
+                base_mag_evasion=stats['base_mag_evasion'],
 
             )
             session.add(table_unit)
@@ -121,8 +121,6 @@ class UnitService:
         self.generate_random_unit(team = 1)
         self.generate_random_unit(team = 1)
 
-
-
     @classmethod
     def get_nonplayer_units(self):
         with Session(engine) as session:
@@ -147,9 +145,6 @@ class UnitService:
 
             session.commit()
             session.flush()
-
-
-
 
     @classmethod
     def get_all(self):
@@ -176,6 +171,8 @@ class UnitService:
                         'is_alive': item.is_alive,
                         'action_points': 0,
                         'move_points': 0,
+                        'death_timer': 0,
+                        'permadeath': False,
                         'wait': False,
                         'max_hp': item.max_hp,
                         'current_hp': item.current_hp,
@@ -185,7 +182,8 @@ class UnitService:
                         'ranged_hit_chance': item.ranged_hit_chance,
                         'base_phys_res': item.base_phys_res,
                         'base_mag_res': item.base_mag_res,
-                        'base_evasion': 0,
+                        'base_phys_evasion': 0,
+                        'base_mag_evasion': 0,
                         'initiative': 0,
                         'base_str': item.base_str,
                         'base_dex': item.base_dex,
@@ -225,7 +223,7 @@ class UnitService:
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'max_hp': 75 + (4 * unit.base_vit)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_hp': 75 + (4 * unit.base_vit)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'max_mana': 10 + (2 * unit.base_mnd)})
-            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_mana':10 + (2 * unit.base_mnd)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_mana': 0})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'melee_hit_chance': 70 + (unit.base_dex / 5)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'ranged_hit_chance': 50 + (unit.base_dex / 4)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_phys_res': (unit.base_con * 0.5)})
@@ -233,7 +231,6 @@ class UnitService:
 
             session.commit()
             session.flush()
-
     
     def level_up(unit):
         
@@ -266,7 +263,6 @@ class UnitService:
 
             session.commit()
             session.flush()
-
 
 class WeaponService:
     def populate_weapons():
@@ -351,8 +347,6 @@ class WeaponService:
 
                 session.add(db_weapon)
             session.commit()
-
-
 
 
 

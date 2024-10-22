@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class LevelUpStats:
     def __init__(self, base_str, base_dex, base_spd, base_vit, base_con, base_int, base_mnd, base_res):
         self.base_str = base_str
@@ -36,4 +35,18 @@ levelup_stats = {
     'Astromancer': LevelUpStats(0,1,1,1,1,4,3,4),
     'Crusader': LevelUpStats(3,1,1,2,1,2,1,4),
     'Priest': LevelUpStats(0,0,2,2,1,3,3,3),
+                }
+
+charclass_evasion = {
+    'Weaponmaster': (0, -10),
+    'Elementalist': (0, 10),
+    'Rogue': (5, 10),
+    'Shaman': (0, 0),
+    'Monk': (10, 5),
+    'Necromancer': (0, 0),
+    'Demonologist': (-10, -10),
+    'Hemomancer': (0, 0),
+    'Astromancer': (0, 10),
+    'Crusader': (-5, -5),
+    'Priest': (0, 5),
                 }
