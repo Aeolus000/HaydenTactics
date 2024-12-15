@@ -19,6 +19,12 @@ shop
 	- create a shop that randomly generates a list of buyable items.
 	- sell inventory items for War Funds or spend War Funds to buy things. 
 
+	secondary ideas:
+
+	- lead into the "RPG" side of the SRPG.
+	- have a random roll chance that upgrades an item in a certain way. For instance, a Superior Iron Short Sword, that has 1 extra damage, and it costs more.
+	- basic item modifiers like diablo
+
 
 ability flow:
 

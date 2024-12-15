@@ -16,14 +16,14 @@ def create_unitlist():
     ### apply class evasion stats to unit's base evasion
     for unit in unitlist:
         evasion_stat = Stats.charclass_evasion[unit['charclass']]
-        print(f"initial phys res {unit['base_phys_evasion']}")
-        print(f"initial mag res {unit['base_mag_evasion']}")
+        #print(f"initial phys res {unit['base_phys_evasion']}")
+        #print(f"initial mag res {unit['base_mag_evasion']}")
 
         unit['base_phys_evasion'] = unit['base_phys_evasion'] + evasion_stat[0]
         unit['base_mag_evasion'] = unit['base_mag_evasion'] + evasion_stat[1]
 
-        print(unit['base_phys_evasion'])
-        print(unit['base_mag_evasion'])
+        #print(unit['base_phys_evasion'])
+        #print(unit['base_mag_evasion'])
     
     return unitlist
 

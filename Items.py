@@ -8,10 +8,6 @@ damagetype = ("Slashing", "Piercing", "Crushing")
 armortype = ("Cloth", "Leather", "Mail", "Plate")
 
 
-
-
-
-
 class Inventory:
 
       war_funds = 1000
