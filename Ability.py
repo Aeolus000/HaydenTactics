@@ -30,5 +30,4 @@ def heal(caster, target):
 
     caster['current_mana'] = caster['current_mana'] - 10
     caster['action_points'] = caster['action_points'] - 1
-
     target['current_hp'] = target['current_hp'] + 10
