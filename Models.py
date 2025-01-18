@@ -3,7 +3,7 @@ from typing import Any
 from typing import Dict
 from typing import Type
 from typing import Optional
-from sqlalchemy import String, select, ForeignKey
+from sqlalchemy import String, select, ForeignKey, JSON
 
 from sqlalchemy import create_engine
 
@@ -58,21 +58,10 @@ class UnitTable(Base):
     base_phys_evasion: Mapped[int] = mapped_column(nullable = True)
     base_mag_evasion: Mapped[int] = mapped_column(nullable = True)
 
-    ability1: Mapped[int] = mapped_column(nullable = True)
-    ability2: Mapped[int] = mapped_column(nullable = True)
-    ability3: Mapped[int] = mapped_column(nullable = True)
-    ability4: Mapped[int] = mapped_column(nullable = True)
-
-    # weapon_slot1: ?
-    # weapon_slot2: ?
-    # weapon_slot3: ?
-    # helmet_slot: ?
-    # armor_slot: ?
-    # leg_slot: ?
-    # ring_slot: ?
-
-    #def __repr__(self) -> str:
-        #return f"{self.unit_id}"
+    # ability1: Mapped[JSON] = mapped_column(nullable = True)
+    # ability2: Mapped[JSON] = mapped_column(nullable = True)
+    # ability3: Mapped[JSON] = mapped_column(nullable = True)
+    # ability4: Mapped[JSON] = mapped_column(nullable = True)
 
 class CharClassTable(Base):
     __tablename__ = "charclass_table"
@@ -91,7 +80,7 @@ class UnitEquipmentTable(Base):
     __tablename__ = "unit_equipment_table"
     id: Mapped[int] = mapped_column(primary_key=True)
     unit_id: Mapped[int] = mapped_column(ForeignKey("unit_table.id"))
-    weapon_slot1: Mapped[int] = mapped_column(nullable = True)
+    weapon_slot1: Mapped[int] = mapped_column(ForeignKey("base_weapon_table.id"), nullable = True)
     weapon_slot2: Mapped[int] = mapped_column(nullable = True)
     weapon_slot3: Mapped[int] = mapped_column(nullable = True)
     helmet_slot: Mapped[int] = mapped_column(nullable = True)

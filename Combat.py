@@ -24,6 +24,7 @@ def create_unitlist():
 
         #print(unit['base_phys_evasion'])
         #print(unit['base_mag_evasion'])
+    print(unitlist[0])
     
     return unitlist
 
@@ -73,7 +74,7 @@ def end_initiative(turn_unit):
 
 def get_base_melee_damage(unit):
      
-    melee_damage = (unit["base_str"] / 2) + (unit["base_dex"] / 4)
+    melee_damage = (unit["base_str"] / 2) + (unit["base_dex"] / 4) + unit['weapon_slot1']['damage_range']
 
     return round(melee_damage)
 
@@ -86,7 +87,7 @@ def get_hit_chance(attacker, defender = None, is_ranged = False):
 
     if not is_ranged:
         if defender:
-            finalhitchance = (attacker['melee_hit_chance'] - defender['base_phys_evasion'])
+            finalhitchance = (attacker['melee_hit_chance'] - defender['base_phys_evasion']) + ((attacker['level'] - defender['level']) * 2)
         else: 
             finalhitchance = attacker['melee_hit_chance']
     elif is_ranged:

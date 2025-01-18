@@ -39,8 +39,8 @@ class UnitService:
             'current_hp': 75 + (4 * base_vit),
             'max_mana': 10 + (2 * base_mnd),
             'current_mana': 0,
-            'melee_hit_chance': 70 + (base_dex / 5),
-            'ranged_hit_chance': 50 + (base_dex / 4),
+            'melee_hit_chance': 70 + (base_dex // 5),
+            'ranged_hit_chance': 50 + (base_dex // 4),
             'base_phys_res': (base_con * 0.5),
             'base_mag_res': (base_res * 0.5),
             'base_phys_evasion': 0,
@@ -90,10 +90,23 @@ class UnitService:
                 base_mag_res=stats['base_mag_res'],
                 base_phys_evasion=stats['base_phys_evasion'],
                 base_mag_evasion=stats['base_mag_evasion'],
-
             )
             session.add(table_unit)
             session.commit()
+
+            table_unit_inv = UnitEquipmentTable(
+                unit_id=table_unit.id,
+                weapon_slot1=1,
+                weapon_slot2=None,
+                weapon_slot3=None,
+                helmet_slot=None,
+                armor_slot=None,
+                leg_slot=None,
+                ring_slot=None,
+            )
+            session.add(table_unit_inv)
+            session.commit()
+
 
     @classmethod
     def generate_random_unit(self, team = 0):
@@ -162,6 +175,9 @@ class UnitService:
             test = session.query(UnitTable).all()
 
             for item in test:
+
+                equipdict, weapondict = self.get_unit_equipment(item.id)
+
                 unitdict = {'id': item.id,
                         'name': item.name,
                         'charclass': item.charclass,
@@ -193,6 +209,9 @@ class UnitService:
                         'base_int': item.base_int,
                         'base_mnd': item.base_mnd,
                         'base_res': item.base_res,
+
+                        'weapon_slot1': weapondict.__dict__,
+                        #'weapon_slot2': equipdict
                         }
             
                 unitlist.append(unitdict)
@@ -216,6 +235,18 @@ class UnitService:
     
         return unit
     
+    def get_unit_equipment(unit_id):
+
+        with Session(engine) as session:
+
+            #unit = session.query(UnitTable).get(unit_id)
+
+            equipment = session.query(UnitEquipmentTable).get(unit_id)
+
+            weapon = session.query(BaseWeaponTable).get(equipment.weapon_slot1)
+
+        return equipment, weapon
+    
     def refresh_stats_noncombat(unit):
 
         with Session(engine) as session:
@@ -224,8 +255,8 @@ class UnitService:
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_hp': 75 + (4 * unit.base_vit)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'max_mana': 10 + (2 * unit.base_mnd)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_mana': 0})
-            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'melee_hit_chance': 70 + (unit.base_dex / 5)})
-            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'ranged_hit_chance': 50 + (unit.base_dex / 4)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'melee_hit_chance': 70 + (unit.base_dex // 5)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'ranged_hit_chance': 50 + (unit.base_dex // 4)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_phys_res': (unit.base_con * 0.5)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_mag_res': (unit.base_res * 0.5),})
 
@@ -249,12 +280,7 @@ class UnitService:
 
 
             session.commit()
-            session.flush()
-                
-
-            #     print(key, value, unit.name, (getattr(unit, key), value))
-                
-            #unit.level += 1
+            session.flush()         
 
     def dismiss(unit):
 
@@ -266,6 +292,8 @@ class UnitService:
 
 class WeaponService:
     def populate_weapons():
+
+        ### need to check if this is empty before I create it, otherwise it creates it over nad over
         with Session(engine) as session:
 
             weapons = [
