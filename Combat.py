@@ -102,7 +102,10 @@ def get_hit_chance(attacker, defender = None, is_ranged = False):
 
 def attack(attacker, defender):
 
-    hit_chance = get_hit_chance(attacker, defender)
+    if attacker['weapon_slot1'].is_ranged:
+        hit_chance = get_hit_chance(attacker, defender, True)
+    else:
+        hit_chance = get_hit_chance(attacker, defender)
     hitroll = random.randint(1, 100)
     hit = None
      

@@ -465,8 +465,12 @@ class CombatGUI(QWidget):
             self.combat_actions.attack_button.setDisabled(False)
 
         #display_stats = Displays.text_format(unit1, 0)
-
-        self.message.setText(f"{Combat.get_hit_chance(turn_unit, unit1)}% chance to hit {unit1['name']}")
+        #print(turn_unit)
+        #print(turn_unit['weapon_slot1'].is_ranged)
+        if turn_unit['weapon_slot1'].is_ranged:
+            self.message.setText(f"{Combat.get_hit_chance(turn_unit, unit1, True)}% chance to hit {unit1['name']}")
+        else:
+            self.message.setText(f"{Combat.get_hit_chance(turn_unit, unit1)}% chance to hit {unit1['name']}")
 
         self.opponent_unit_stats_label.setText(f"""Target: {unit1['name']}\n\nClass: {unit1['charclass']}\n\nStrength:\t\t{unit1['base_str']}\nDexterity:\t{unit1['base_dex']}\nSpeed:\t\t{unit1['base_spd']}\nVitality:\t\t{unit1['base_vit']}\nConstitution:\t{unit1['base_con']}\nIntelligence:\t{unit1['base_int']}\nMind:\t\t{unit1['base_mnd']}\nResistance:\t{unit1['base_res']}\n\nPhys Resistance: {Combat.get_base_melee_defense(turn_unit)}%""")
         self.opponent_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{unit1['current_hp']} / {unit1['max_hp']}\nMana:\t\t{unit1['current_mana']} / {unit1['max_mana']}\n\n{unit1['weapon_slot1'].name}\nMelee Damage: {Combat.get_base_melee_damage(unit1)}""")
@@ -785,8 +789,9 @@ class Displays:
             #print(equipment)
             display_stats.append(f"\nWeapon Slot 1:\t\t{equipment['weapon_slot1'].name}")
             display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot1'].damage_range}")
-            display_stats.append(f"\nWeapon Slot 2:\t\t{equipment['weapon_slot2'].name}")
-            display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot2'].damage_range}")
+            if equipment['weapon_slot2'] is not None:
+                display_stats.append(f"\nWeapon Slot 2:\t\t{equipment['weapon_slot2'].name}")
+                display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot2'].damage_range}")
 
         return '\n'.join(display_stats)
 

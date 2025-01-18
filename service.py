@@ -97,7 +97,7 @@ class UnitService:
             table_unit_inv = UnitEquipmentTable(
                 unit_id=table_unit.id,
                 weapon_slot1=1,
-                weapon_slot2=2,
+                weapon_slot2=3,
                 weapon_slot3=None,
                 helmet_slot=None,
                 armor_slot=None,
@@ -247,7 +247,7 @@ class UnitService:
 
 
             for key, value in equipment.__dict__.items():
-                if "slot" in key and value is not None:
+                if "slot" in key:
                     #print(key, value)
                     blah = session.query(BaseWeaponTable).get(value)
 
@@ -313,7 +313,8 @@ class WeaponService:
                     'value': 50, 
                     'handed': "one-handed", 
                     'damage_type': "Slashing", 
-                    'damage_range': 8
+                    'damage_range': 8,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Iron Greatsword',
@@ -321,7 +322,8 @@ class WeaponService:
                     'value': 80, 
                     'handed': "two-handed", 
                     'damage_type': "Slashing", 
-                    'damage_range': 14
+                    'damage_range': 14,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Iron Rapier',
@@ -329,7 +331,8 @@ class WeaponService:
                     'value': 60, 
                     'handed': "one-handed", 
                     'damage_type': "Piercing", 
-                    'damage_range': 7
+                    'damage_range': 7,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Iron Morning Star',
@@ -337,7 +340,8 @@ class WeaponService:
                     'value': 60, 
                     'handed': "one-handed", 
                     'damage_type': "Crushing", 
-                    'damage_range': 6
+                    'damage_range': 6,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Iron Handaxe',
@@ -345,7 +349,8 @@ class WeaponService:
                     'value': 40, 
                     'handed': "one-handed", 
                     'damage_type': "Slashing", 
-                    'damage_range': 6
+                    'damage_range': 6,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Iron Spear',
@@ -353,7 +358,8 @@ class WeaponService:
                     'value': 75, 
                     'handed': "one-handed", 
                     'damage_type': "Piercing", 
-                    'damage_range': 6
+                    'damage_range': 6,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Iron Halberd',
@@ -361,7 +367,8 @@ class WeaponService:
                     'value': 100, 
                     'handed': "two-handed", 
                     'damage_type': "Slashing", 
-                    'damage_range': 8
+                    'damage_range': 8,
+                    'is_ranged': False
                 },
                 {
                     'name': 'Wooden Staff',
@@ -369,7 +376,17 @@ class WeaponService:
                     'value': 25, 
                     'handed': "one-handed", 
                     'damage_type': "Crushing", 
-                    'damage_range': 4
+                    'damage_range': 4,
+                    'is_ranged': False
+                },
+                {
+                    'name': 'Shortbow',
+                    'weight': 3, 
+                    'value': 50, 
+                    'handed': "two-handed", 
+                    'damage_type': "Piercing", 
+                    'damage_range': 8,
+                    'is_ranged': True
                 },
             ]
 
@@ -381,6 +398,7 @@ class WeaponService:
                     handed=weapon['handed'],
                     damage_type=weapon['damage_type'],
                     damage_range=weapon['damage_range'],
+                    is_ranged=weapon['is_ranged']
                 )
 
                 session.add(db_weapon)

@@ -3,7 +3,7 @@ from typing import Any
 from typing import Dict
 from typing import Type
 from typing import Optional
-from sqlalchemy import String, select, ForeignKey, JSON
+from sqlalchemy import String, Boolean, select, ForeignKey, JSON
 
 from sqlalchemy import create_engine
 
@@ -97,6 +97,7 @@ class BaseWeaponTable(Base):
     handed: Mapped[str] = mapped_column(String(30))
     damage_type: Mapped[str] = mapped_column(nullable = True)
     damage_range: Mapped[int] = mapped_column(nullable = True)
+    is_ranged: Mapped[bool] = mapped_column(unique = False, default = False)
 
 class AbilityTable(Base):
     __tablename__ = "ability_table"
@@ -111,5 +112,3 @@ class AbilityTable(Base):
     damage: Mapped[int] = mapped_column(nullable = True)
     damage_element: Mapped[int] = mapped_column(nullable = True)
       
-
-
