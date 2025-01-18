@@ -97,7 +97,7 @@ class UnitService:
             table_unit_inv = UnitEquipmentTable(
                 unit_id=table_unit.id,
                 weapon_slot1=1,
-                weapon_slot2=None,
+                weapon_slot2=2,
                 weapon_slot3=None,
                 helmet_slot=None,
                 armor_slot=None,
@@ -149,13 +149,13 @@ class UnitService:
 
         with Session(engine) as session:
 
-            #session.query(UnitTable).filter(UnitTable.team >= 1).delete
+            del_units = session.query(UnitTable).filter(UnitTable.team >= 1)
+
+            for unit in del_units:
+                stmt2 = delete(UnitEquipmentTable).where(UnitEquipmentTable.unit_id == unit.id)
+                session.execute(stmt2)
             stmt = delete(UnitTable).where(UnitTable.team >= 1)
             session.execute(stmt)
-            #session.delete(UnitTable).where(UnitTable.team >= 1)
-            #units = select(UnitTable).where(UnitTable.team >= 1)
-            #session.delete(units)
-
             session.commit()
             session.flush()
 
@@ -176,7 +176,7 @@ class UnitService:
 
             for item in test:
 
-                equipdict, weapondict = self.get_unit_equipment(item.id)
+                equipment = self.get_unit_equipment(item.id)
 
                 unitdict = {'id': item.id,
                         'name': item.name,
@@ -210,8 +210,9 @@ class UnitService:
                         'base_mnd': item.base_mnd,
                         'base_res': item.base_res,
 
-                        'weapon_slot1': weapondict.__dict__,
-                        #'weapon_slot2': equipdict
+                        'weapon_slot1': equipment.get('weapon_slot1', None),
+                        'weapon_slot2': equipment.get('weapon_slot2', None),
+                        'weapon_slot3': equipment.get('weapon_slot3', None),
                         }
             
                 unitlist.append(unitdict)
@@ -237,15 +238,24 @@ class UnitService:
     
     def get_unit_equipment(unit_id):
 
+        equipment_list = {}
+
         with Session(engine) as session:
 
-            #unit = session.query(UnitTable).get(unit_id)
+            equipment = session.query(UnitEquipmentTable).filter(UnitEquipmentTable.unit_id == unit_id).first()
+            #print(equipment)
 
-            equipment = session.query(UnitEquipmentTable).get(unit_id)
 
-            weapon = session.query(BaseWeaponTable).get(equipment.weapon_slot1)
+            for key, value in equipment.__dict__.items():
+                if "slot" in key and value is not None:
+                    #print(key, value)
+                    blah = session.query(BaseWeaponTable).get(value)
 
-        return equipment, weapon
+                    equipment_list.setdefault(key, blah)
+
+
+        #print(equipment.__dict__)
+        return equipment_list
     
     def refresh_stats_noncombat(unit):
 

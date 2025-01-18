@@ -177,7 +177,7 @@ class CombatActions(QWidget):
         defender = combat_gui.get_selected_unit()
         hitroll, hit, damage = Combat.attack(attacker, defender)
 
-        print(f"{attacker['name']}, roll: {hitroll}, hitchance (low rolls whiff): {Combat.get_hit_chance(attacker, defender)}\nNeeded Roll: >{(100 - Combat.get_hit_chance(attacker, defender))}")
+        print(f"{attacker['name']}, roll: {hitroll}, hitchance: {Combat.get_hit_chance(attacker, defender)}\nNeeded Roll: >{(100 - Combat.get_hit_chance(attacker, defender))}")
         if hit == True:
             hit = f"Succeeds! {defender['name']} took {damage} damage."
         elif hit == False:
@@ -393,7 +393,7 @@ class CombatGUI(QWidget):
 
 
             self.turn_unit_stats_label.setText(f"""{turn_unit['name']}'s Turn\n\nClass: {turn_unit['charclass']}\n\nStrength:\t\t{turn_unit['base_str']}\nDexterity:\t{turn_unit['base_dex']}\nSpeed:\t\t{turn_unit['base_spd']}\nVitality:\t\t{turn_unit['base_vit']}\nConstitution:\t{turn_unit['base_con']}\nIntelligence:\t{turn_unit['base_int']}\nMind:\t\t{turn_unit['base_mnd']}\nResistance:\t{turn_unit['base_res']}\n\nPhys Resistance: {Combat.get_base_melee_defense(turn_unit)}%""")
-            self.turn_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{turn_unit['current_hp']} / {turn_unit['max_hp']}\nMana:\t\t{turn_unit['current_mana']} / {turn_unit['max_mana']}\n\n{turn_unit['weapon_slot1']['name']}\nMelee Damage: {Combat.get_base_melee_damage(turn_unit)}""")
+            self.turn_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{turn_unit['current_hp']} / {turn_unit['max_hp']}\nMana:\t\t{turn_unit['current_mana']} / {turn_unit['max_mana']}\n\n{turn_unit['weapon_slot1'].name}\nMelee Damage: {Combat.get_base_melee_damage(turn_unit)}""")
         
     def refresh_turn_order(self):
 
@@ -469,7 +469,7 @@ class CombatGUI(QWidget):
         self.message.setText(f"{Combat.get_hit_chance(turn_unit, unit1)}% chance to hit {unit1['name']}")
 
         self.opponent_unit_stats_label.setText(f"""Target: {unit1['name']}\n\nClass: {unit1['charclass']}\n\nStrength:\t\t{unit1['base_str']}\nDexterity:\t{unit1['base_dex']}\nSpeed:\t\t{unit1['base_spd']}\nVitality:\t\t{unit1['base_vit']}\nConstitution:\t{unit1['base_con']}\nIntelligence:\t{unit1['base_int']}\nMind:\t\t{unit1['base_mnd']}\nResistance:\t{unit1['base_res']}\n\nPhys Resistance: {Combat.get_base_melee_defense(turn_unit)}%""")
-        self.opponent_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{unit1['current_hp']} / {unit1['max_hp']}\nMana:\t\t{unit1['current_mana']} / {unit1['max_mana']}\n\n{unit1['weapon_slot1']['name']}\nMelee Damage: {Combat.get_base_melee_damage(unit1)}""")
+        self.opponent_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{unit1['current_hp']} / {unit1['max_hp']}\nMana:\t\t{unit1['current_mana']} / {unit1['max_mana']}\n\n{unit1['weapon_slot1'].name}\nMelee Damage: {Combat.get_base_melee_damage(unit1)}""")
 
 class UnitGUI(QWidget):
     def __init__(self):
@@ -779,11 +779,14 @@ class Displays:
             display_stats.append(f"\nPhysical Damage Reduction:\t{unit.base_phys_res}%")
             display_stats.append(f"Magical Damage Reduction:\t{unit.base_mag_res}%")
 
-            equipment, weapon = UnitService.get_unit_equipment(unit.id)
-            unitlol = UnitService.get_attributes_by_id(unit.id)
+            equipment = UnitService.get_unit_equipment(unit.id)
+            #unitlol = UnitService.get_attributes_by_id(unit.id)
 
-            print(equipment.weapon_slot1)
-            display_stats.append(f"\nWeapon:\t\t{weapon.name}")
+            #print(equipment)
+            display_stats.append(f"\nWeapon Slot 1:\t\t{equipment['weapon_slot1'].name}")
+            display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot1'].damage_range}")
+            display_stats.append(f"\nWeapon Slot 2:\t\t{equipment['weapon_slot2'].name}")
+            display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot2'].damage_range}")
 
         return '\n'.join(display_stats)
 

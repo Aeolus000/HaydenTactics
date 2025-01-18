@@ -80,14 +80,13 @@ class UnitEquipmentTable(Base):
     __tablename__ = "unit_equipment_table"
     id: Mapped[int] = mapped_column(primary_key=True)
     unit_id: Mapped[int] = mapped_column(ForeignKey("unit_table.id"))
-    weapon_slot1: Mapped[int] = mapped_column(ForeignKey("base_weapon_table.id"), nullable = True)
+    weapon_slot1: Mapped[int] = mapped_column(nullable = True)
     weapon_slot2: Mapped[int] = mapped_column(nullable = True)
     weapon_slot3: Mapped[int] = mapped_column(nullable = True)
     helmet_slot: Mapped[int] = mapped_column(nullable = True)
     armor_slot: Mapped[int] = mapped_column(nullable = True)
     leg_slot: Mapped[int] = mapped_column(nullable = True)
     ring_slot: Mapped[int] = mapped_column(nullable = True)
-
 
 class BaseWeaponTable(Base):
     __tablename__ = "base_weapon_table"
@@ -98,7 +97,6 @@ class BaseWeaponTable(Base):
     handed: Mapped[str] = mapped_column(String(30))
     damage_type: Mapped[str] = mapped_column(nullable = True)
     damage_range: Mapped[int] = mapped_column(nullable = True)
-
 
 class AbilityTable(Base):
     __tablename__ = "ability_table"
