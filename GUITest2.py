@@ -344,7 +344,23 @@ class CombatGUI(QWidget):
         turn_unit['move_points'] = 0
         turn_unit['wait'] = True
 
+        unit_gui.unit_stats_label.setText(None)
+
         UnitService.delete_nonplayer_units()
+
+        for unit in self.unitlist:
+            if unit['team'] == 0:
+                unit['exp'] = unit['exp'] + 135
+
+                bro = UnitService.get_attributes_by_id(unit['id'])
+
+                UnitService.update_experience(bro, unit['exp'])
+
+        
+
+
+
+
 
     def run_tick(self):
         global in_battle
@@ -768,6 +784,7 @@ class Displays:
             f'Name:\t{unit.name}', 
             f'Job:\t{unit.charclass}',  
             f'Level:\t{unit.level}'
+            f'\tExp:\t{unit.exp}'
             ]
         display_stats.append(f"\nCurrent / Max HP:\t\t{unit.current_hp} / {unit.max_hp}")
         display_stats.append(f"Current / Max Mana:\t{unit.current_mana} / {unit.max_mana}")
@@ -787,11 +804,11 @@ class Displays:
             #unitlol = UnitService.get_attributes_by_id(unit.id)
 
             #print(equipment)
-            display_stats.append(f"\nWeapon Slot 1:\t\t{equipment['weapon_slot1'].name}")
-            display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot1'].damage_range}")
+            display_stats.append(f"\nWeapon Slot 1:\t{equipment['weapon_slot1'].name}")
+            display_stats.append(f"Weapon Damage:\t{equipment['weapon_slot1'].damage_range}")
             if equipment['weapon_slot2'] is not None:
-                display_stats.append(f"\nWeapon Slot 2:\t\t{equipment['weapon_slot2'].name}")
-                display_stats.append(f"Weapon Damage:\t\t{equipment['weapon_slot2'].damage_range}")
+                display_stats.append(f"\nWeapon Slot 2:\t{equipment['weapon_slot2'].name}")
+                display_stats.append(f"Weapon Damage:\t{equipment['weapon_slot2'].damage_range}")
 
         return '\n'.join(display_stats)
 

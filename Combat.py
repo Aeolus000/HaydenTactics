@@ -74,7 +74,7 @@ def end_initiative(turn_unit):
 
 def get_base_melee_damage(unit):
      
-    melee_damage = (unit["base_str"] / 2) + (unit["base_dex"] / 4) + unit['weapon_slot1'].damage_range
+    melee_damage = (unit['base_str'] / 2) + (unit["base_dex"] / 4) + unit['weapon_slot1'].damage_range
 
     return round(melee_damage)
 

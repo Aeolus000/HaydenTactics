@@ -39,8 +39,8 @@ class UnitService:
             'current_hp': 75 + (4 * base_vit),
             'max_mana': 10 + (2 * base_mnd),
             'current_mana': 0,
-            'melee_hit_chance': 70 + (base_dex // 5),
-            'ranged_hit_chance': 50 + (base_dex // 4),
+            'melee_hit_chance': 70 + round(base_dex / 5),
+            'ranged_hit_chance': 50 + round(base_dex / 4),
             'base_phys_res': (base_con * 0.5),
             'base_mag_res': (base_res * 0.5),
             'base_phys_evasion': 0,
@@ -132,7 +132,7 @@ class UnitService:
     def generate_enemy_team(self):
         self.generate_random_unit(team = 1)
         self.generate_random_unit(team = 1)
-        self.generate_random_unit(team = 1)
+        #self.generate_random_unit(team = 1)
 
     @classmethod
     def get_nonplayer_units(self):
@@ -213,6 +213,10 @@ class UnitService:
                         'weapon_slot1': equipment.get('weapon_slot1', None),
                         'weapon_slot2': equipment.get('weapon_slot2', None),
                         'weapon_slot3': equipment.get('weapon_slot3', None),
+                        'helmet_slot': equipment.get('helmet_slot', None),
+                        'armor_slot': equipment.get('armor_slot', None),
+                        'leg_slot': equipment.get('leg_slot', None),
+                        'ring_slot': equipment.get('ring_slot', None),
                         }
             
                 unitlist.append(unitdict)
@@ -247,8 +251,7 @@ class UnitService:
 
 
             for key, value in equipment.__dict__.items():
-                if "slot" in key:
-                    #print(key, value)
+                if "slot" in key and value is not None:
                     blah = session.query(BaseWeaponTable).get(value)
 
                     equipment_list.setdefault(key, blah)
@@ -265,8 +268,8 @@ class UnitService:
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_hp': 75 + (4 * unit.base_vit)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'max_mana': 10 + (2 * unit.base_mnd)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'current_mana': 0})
-            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'melee_hit_chance': 70 + (unit.base_dex // 5)})
-            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'ranged_hit_chance': 50 + (unit.base_dex // 4)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'melee_hit_chance': 70 + round(unit.base_dex / 5)})
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'ranged_hit_chance': 50 + round(unit.base_dex / 4)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_phys_res': (unit.base_con * 0.5)})
             session.query(UnitTable).filter(UnitTable.id == unit.id).update({'base_mag_res': (unit.base_res * 0.5),})
 
@@ -290,20 +293,47 @@ class UnitService:
 
 
             session.commit()
-            session.flush()         
+            session.flush()
+
+    def update_experience(unit, exp):
+
+        while exp >= 100:
+            if unit.level >= 30:
+                break
+            exp = exp - 100
+            UnitService.level_up(unit)
+            print(f"{unit.name} leveled up to {unit.level}!")
+
+        with Session(engine) as session:
+
+            session.query(UnitTable).filter(UnitTable.id == unit.id).update({'exp': exp})
+            db_unit = session.query(UnitTable).filter(UnitTable.id == unit.id).first()
+            print(f"{db_unit.name} exp on db: {db_unit.exp}")
+            session.commit()
+            session.flush()
+
+                
+
+        # with Session(engine) as session:
+
+        #     session.query(UnitTable).filter(UnitTable.id == unit.id).update({'exp': unit.exp})
+        #     session.commit()
+        #     session.flush()
 
     def dismiss(unit):
 
         with Session(engine) as session:
             session.delete(unit)
-
+            stmt = delete(UnitEquipmentTable).where(UnitEquipmentTable.unit_id == unit.id)
+            session.execute(stmt)
             session.commit()
             session.flush()
 
 class WeaponService:
     def populate_weapons():
 
-        ### need to check if this is empty before I create it, otherwise it creates it over nad over
+        #if not engine.dialect.has_table(engine, BaseWeaponTable):
+            ### need to check if this is empty before I create it, otherwise it creates it over nad over
         with Session(engine) as session:
 
             weapons = [

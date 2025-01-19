@@ -99,6 +99,13 @@ class BaseWeaponTable(Base):
     damage_range: Mapped[int] = mapped_column(nullable = True)
     is_ranged: Mapped[bool] = mapped_column(unique = False, default = False)
 
+class BaseArmorTable(Base):
+    __tablename__ = "base_armor_table"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30))
+    weight: Mapped[int] = mapped_column(nullable = True)
+    value: Mapped[int] = mapped_column(nullable = True)
+
 class AbilityTable(Base):
     __tablename__ = "ability_table"
     id: Mapped[int] = mapped_column(primary_key=True)
