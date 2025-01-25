@@ -74,6 +74,9 @@ class PlayerInventoryTable(Base):
     __tablename__ = "playerinv_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    item_type: Mapped[str] = mapped_column(nullable = False)
+    quantity: Mapped[int] = mapped_column(nullable = False)
+    item_id: Mapped[int] = mapped_column()
     
 
 class UnitEquipmentTable(Base):

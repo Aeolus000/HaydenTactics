@@ -164,7 +164,15 @@ class CombatActions(QWidget):
 
         self.setLayout(grid)
 
+        grid.setAlignment(Qt.AlignCenter)
+
         self.ability_button.setDisabled(True)
+
+        self.ability_button.setFixedSize(150, 25)
+        self.wait_button.setFixedSize(150, 25)
+        self.attack_button.setFixedSize(150, 25)
+        self.move_button.setFixedSize(150, 25)
+        self.ability_box.setFixedSize(150, 25)
 
     def attack_button_pressed(self):
         turn_unit["action_points"] = turn_unit["action_points"] - 1
@@ -287,6 +295,14 @@ class CombatGUI(QWidget):
         self.turn_list.setDisabled(False)
         self.turn_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
+        self.target_list.setFixedSize(250, 250)
+        self.turn_list.setFixedSize(250, 250)
+        self.message.setFixedSize(250, 250)
+        self.message.setWordWrap(True)
+        self.message.setAlignment(Qt.AlignCenter)
+
+        self.setFixedSize(800, 600)
+
         
         self.combat_actions.attack_button.clicked.connect(self.combat_actions.attack_button_pressed)
 
@@ -295,6 +311,10 @@ class CombatGUI(QWidget):
         self.target_list.itemClicked.connect(self.target_list_selection_changed)
         self.refresh_turn_order()
         self.run_tick()
+
+    def closeEvent(self, event):
+        print("Window closed, deleting enemy team...")
+        UnitService.delete_nonplayer_units()
 
     def end_turn_check(self):
 
@@ -355,12 +375,6 @@ class CombatGUI(QWidget):
                 bro = UnitService.get_attributes_by_id(unit['id'])
 
                 UnitService.update_experience(bro, unit['exp'])
-
-        
-
-
-
-
 
     def run_tick(self):
         global in_battle
@@ -437,13 +451,6 @@ class CombatGUI(QWidget):
             self.turn_list.setItem(row + 1, 0, blah)
             self.turn_list.setItem(row + 1, 1, blah2)
             row += 1
-
-            #self.turn_list.addItem(f"{unit["id"]} {unit["name"]}\t Initiative: {unit["initiative"]}")
-
-        # units = UnitService.get_all()
-        # for unit in units:
-        #     self.turn_list.addItem(f"{unit.id} {unit.name}\t\t Initiative: {unit.initiative}")
-
 
     def get_selected_unit(self):
 
@@ -527,6 +534,10 @@ class UnitGUI(QWidget):
         self.unit_list.setGeometry(0, 0, 200, 200)
         self.unit_stats_label.setGeometry(100, 100, 400, 600)
 
+        #self.setFixedSize(700, 500)
+        self.unit_list.setFixedWidth(150)
+        self.unit_stats_label.setFixedWidth(200)
+
         self.message.setStyleSheet("font-family: calibri; font-size: 20px")
 
         self.setLayout(grid)
@@ -542,12 +553,10 @@ class UnitGUI(QWidget):
         self.dismiss_unit_button.clicked.connect(self.dismiss_unit)
 
         self.create_character_button.clicked.connect(self.display_create_unit)
-
-        self.refresh_unit_list()
-
         self.unit_stats_label.setAlignment(Qt.AlignTop)
 
         self.combat_button.clicked.connect(self.display_combat)
+        self.refresh_unit_list()
 
 
     def selection_changed(self):
@@ -673,6 +682,11 @@ class InventoryGUI(QWidget):
         self.unit_equip_label.setAlignment(Qt.AlignCenter)
         self.item_stats_label.setAlignment(Qt.AlignTop)
 
+        self.unit_list_label.setFixedWidth(150)
+        self.item_stats_label.setFixedWidth(220)
+        self.unit_equip_list.setFixedWidth(250)
+        self.inventory_list.setFixedWidth(250)
+
         self.setLayout(grid)
 
         self.unit_list.itemClicked.connect(self.selection_changed_unit_list)
@@ -686,6 +700,9 @@ class InventoryGUI(QWidget):
         self.equip_button.setDisabled(True)
         self.equip_button.clicked.connect(self.equip_equipment)
 
+        #self.setFixedWidth(1200)
+        self.setFixedSize(1050, 300)
+
 
         self.refresh_all()
         
@@ -694,11 +711,29 @@ class InventoryGUI(QWidget):
         self.unit_list.clear()
 
         units = UnitService.get_all()
-        for unit in units:
-            self.unit_list.addItem(f"{unit.id} {unit.name}")
+        if units is not None:
+            for unit in units:
+                self.unit_list.addItem(f"{unit.id} {unit.name}")
 
     def refresh_equipment_list(self):
-        pass
+
+        self.unit_equip_list.clear()
+
+        unit = self.get_selected_unit()
+
+        if unit == None:
+            pass
+        else:
+
+            unit_equipment = UnitService.get_unit_equipment(unit.id)
+
+            for key, value in unit_equipment.items():
+                if value is not None:
+                    self.unit_equip_list.addItem(f"{key} - {value.name}")
+                else:
+                    self.unit_equip_list.addItem(f"{key} - ")
+
+            self.unit_equip_list.sortItems()
 
 
     def refresh_inventory_list(self):
@@ -714,13 +749,18 @@ class InventoryGUI(QWidget):
     def get_selected_unit(self):
         selected = self.unit_list.currentRow()
 
-        db_unit = UnitService.get_unit_by_row(selected)
-
-        return db_unit
+        if selected == -1:
+            return None
+        else:
+            db_unit = UnitService.get_unit_by_row(selected)
+            return db_unit
     
     def get_selected_equipment(self):
 
-        pass
+        row = self.unit_equip_list.currentRow()
+        unit = self.get_selected_unit()
+        unit_equipment = UnitService.get_unit_equipment(unit.id)
+        weapon = session.query(BaseWeaponTable).where(BaseWeaponTable.id == row)
     
     def get_selected_inventory_item(self):
 
@@ -729,15 +769,29 @@ class InventoryGUI(QWidget):
     def selection_changed_unit_list(self):
 
         unit = self.get_selected_unit()
-
+        self.refresh_equipment_list()
         display_stats = Displays.text_format(unit)
-
         self.item_stats_label.setText(display_stats)
-        
         self.sync_window_selections()
 
-
     def selection_changed_equipment_list(self):
+
+        row = self.unit_equip_list.currentRow()
+
+        unit = self.get_selected_unit()
+        unit_equipment = UnitService.get_unit_equipment(unit.id)
+        listtest = list(unit_equipment.keys())
+        listtest.sort()
+
+        if unit_equipment[listtest[row]] is not None:
+            self.item_stats_label.setText(f"""Character: {unit.name}\n\n{listtest[row]}\n\nName:\t\t{unit_equipment[listtest[row]].name}
+                                        \nDamage:\t\t{unit_equipment[listtest[row]].damage_range}
+                                        \nWeight:\t\t{unit_equipment[listtest[row]].weight}
+                                        \nDamage Type:\t{unit_equipment[listtest[row]].damage_type}
+                                        """)
+        else:
+            self.item_stats_label.setText(f"""Character: {unit.name}\n\n{listtest[row]} is Empty.""")
+
 
         if self.unit_equip_list.currentItem() == None:
             self.unequip_button.setDisabled(True)
@@ -763,7 +817,7 @@ class InventoryGUI(QWidget):
         unit_gui.unit_list.setCurrentRow(selection)
         db_unit = UnitService.get_unit_by_row(selection)
         
-        stats = Displays.text_format(db_unit)
+        stats = Displays.text_format(db_unit, 1)
 
         unit_gui.unit_stats_label.setText(stats)
         
@@ -823,13 +877,15 @@ if __name__ == '__main__':
     unit_gui = UnitGUI()
     unit_gui.show()
     inventory_gui = InventoryGUI()
-    #inventory_gui.show()
+    inventory_gui.show()
     character_creation = CharacterCreation()
     character_creation.initUI()
     character_creation.hide()
 
-    # combat_gui = CombatGUI()
-    # combat_gui.show()
+    with Session(engine) as session:
+        does_weap_table_exist = session.query(BaseWeaponTable).all()
+        if does_weap_table_exist is not None:
+            WeaponService.populate_weapons()
+            session.commit()
 
-    WeaponService.populate_weapons()
     sys.exit(app.exec_())
