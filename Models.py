@@ -58,11 +58,6 @@ class UnitTable(Base):
     base_phys_evasion: Mapped[int] = mapped_column(nullable = True)
     base_mag_evasion: Mapped[int] = mapped_column(nullable = True)
 
-    # ability1: Mapped[JSON] = mapped_column(nullable = True)
-    # ability2: Mapped[JSON] = mapped_column(nullable = True)
-    # ability3: Mapped[JSON] = mapped_column(nullable = True)
-    # ability4: Mapped[JSON] = mapped_column(nullable = True)
-
 class CharClassTable(Base):
     __tablename__ = "charclass_table"
 

@@ -283,7 +283,7 @@ class CombatGUI(QWidget):
 
         grid.addWidget(self.combat_actions, 3, 1)
 
-        self.message.setStyleSheet("font-family: calibri; font-size: 16px")
+        self.message.setStyleSheet("font-family: calibri; font-size: 20px")
 
         self.setLayout(grid)
 
@@ -348,9 +348,11 @@ class CombatGUI(QWidget):
         if win == None:
             self.run_tick()
         elif win == True:
+            self.message.setStyleSheet("font-family: calibri; font-size: 40px")
             self.message.setText("!!!VICTORY!!!")
             self.end_battle()
         elif win == False:
+            self.message.setStyleSheet("font-family: calibri; font-size: 40px")
             self.message.setText("!!!DEFEAT!!!")
             self.end_battle()
 
@@ -469,12 +471,12 @@ class CombatGUI(QWidget):
                 if unit['is_alive'] == True:
                     self.target_list.addItem(f"{unit["name"]}")
                 else:
-                    self.target_list.addItem(f"{unit["name"]} (DOWNED)")
+                    self.target_list.addItem(f"{unit["name"]} (DOWNED) (Death in: {3 - unit['death_timer']} Turn(s))")
             else:
                 if unit['is_alive'] == True:
                     self.target_list.addItem(f"{unit["name"]} (enemy)")
                 else:
-                    self.target_list.addItem(f"{unit["name"]} (enemy) (DOWNED)")
+                    self.target_list.addItem(f"{unit["name"]} (enemy) (DOWNED) (Death in: {3 - unit['death_timer']} Turn(s))")
 
     def target_list_selection_changed(self):
 
@@ -820,7 +822,6 @@ class InventoryGUI(QWidget):
         stats = Displays.text_format(db_unit, 1)
 
         unit_gui.unit_stats_label.setText(stats)
-        
         
     def equip_equipment(self):
          

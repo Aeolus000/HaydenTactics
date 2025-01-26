@@ -274,7 +274,6 @@ nameslist = ["Aeolus", "Abraxis", "Zeyta", "Zalzaide", "Armagus", "Ibane", "Gen'
 charclasses = ["Weaponmaster", "Shaman", "Necromancer", "Monk", "Demonologist", "Elementalist", "Rogue", "Hemomancer", "Astromancer", "Crusader", "Priest"]
 
 
-
 class UnitService:
     @classmethod
     def generate_unit_stats(self):
@@ -371,7 +370,6 @@ class UnitService:
             )
             session.add(table_unit_inv)
             session.commit()
-
 
     @classmethod
     def generate_random_unit(self, team = 0):
@@ -640,29 +638,23 @@ class UnitService:
                 "Wulfhilda",
                 "Wynefreede",
                 "Yve",])
-
         randomname = random.choice(nameslist)
         nameslist.remove(randomname)
 
         charclass = random.choice(charclasses)
-
-
         randomized_unit = UnitService.create(randomname, charclass, 1, team = team)
-        #randomunit = Unit(randomname, charclass, 1)
         return randomized_unit
     
     @classmethod
     def generate_enemy_team(self):
         self.generate_random_unit(team = 1)
         self.generate_random_unit(team = 1)
-        #self.generate_random_unit(team = 1)
+        self.generate_random_unit(team = 1)
 
     @classmethod
     def get_nonplayer_units(self):
         with Session(engine) as session:
-
             units = session.query(UnitTable).filter(UnitTable.team > 0)
-
             session.flush()
 
         return units
@@ -763,23 +755,15 @@ class UnitService:
             return unit
     
     def get_unit_equipment(unit_id):
-
         equipment_list = {}
 
         with Session(engine) as session:
-
             equipment = session.query(UnitEquipmentTable).filter(UnitEquipmentTable.unit_id == unit_id).first()
-            #print(equipment)
-
-
             for key, value in equipment.__dict__.items():
                 if "slot" in key:
                     blah = session.query(BaseWeaponTable).get(value)
 
                     equipment_list.setdefault(key, blah)
-
-
-        #print(equipment.__dict__)
         return equipment_list
     
     def refresh_stats_noncombat(unit):
@@ -813,7 +797,6 @@ class UnitService:
 
                 session.query(UnitTable).filter(UnitTable.id == unit.id).update({key: unit_current_stat + value})
 
-
             session.commit()
             session.flush()
 
@@ -845,8 +828,6 @@ class UnitService:
 class WeaponService:
     def populate_weapons():
 
-        #if not engine.dialect.has_table(engine, BaseWeaponTable):
-            ### need to check if this is empty before I create it, otherwise it creates it over nad over
         with Session(engine) as session:
 
             weapons = [
@@ -948,7 +929,5 @@ class WeaponService:
             session.commit()
 
 
-
 engine = create_engine("sqlite:///database.db", echo=False)
-
 Base.metadata.create_all(engine)
