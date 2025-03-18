@@ -81,7 +81,7 @@ def end_initiative(turn_unit):
             turn_unit["initiative"] = 10
             done = True
 
-        return turn_unit["initiative"]
+        return turn_unit["initiative"], done
 
 def get_base_melee_damage(unit):
      

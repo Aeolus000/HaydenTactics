@@ -883,7 +883,7 @@ if __name__ == '__main__':
     character_creation.initUI()
     character_creation.hide()
 
-    UnitService.generate_random_unit(1)
+    #UnitService.generate_random_unit(1)
 
     with Session(engine) as session:
         does_weap_table_exist = session.query(BaseWeaponTable).all()
