@@ -64,7 +64,6 @@ class CharClassTable(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     charclass: Mapped[str] = mapped_column(String(30))
 
-
 class PlayerInventoryTable(Base):
     __tablename__ = "playerinv_table"
 
@@ -72,7 +71,12 @@ class PlayerInventoryTable(Base):
     item_type: Mapped[str] = mapped_column(nullable = False)
     quantity: Mapped[int] = mapped_column(nullable = False)
     item_id: Mapped[int] = mapped_column()
-    
+
+class ItemType(Base):
+    __tablename__ = "itemtypes_table"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_type: Mapped[str] = mapped_column(nullable = False)
 
 class UnitEquipmentTable(Base):
     __tablename__ = "unit_equipment_table"

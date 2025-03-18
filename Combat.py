@@ -8,19 +8,31 @@ import GUITest2
 import Ability
 import random
 
+from PyQt5.QtGui import QColor, QPainter, QPixmap
+
 
 
 def create_unitlist():
     unitlist = UnitService.get_all_as_dict()
+    x = 0
+    y = 0
 
     ### apply class evasion stats to unit's base evasion
     for unit in unitlist:
         evasion_stat = Stats.charclass_evasion[unit['charclass']]
+        x += 1
+        y += 1
+        unit['pos_x'] = x
+        unit['pos_y'] = y
+
+        #print (unit['pos_x'], unit['pos_y'])
         #print(f"initial phys res {unit['base_phys_evasion']}")
         #print(f"initial mag res {unit['base_mag_evasion']}")
 
         unit['base_phys_evasion'] = unit['base_phys_evasion'] + evasion_stat[0]
         unit['base_mag_evasion'] = unit['base_mag_evasion'] + evasion_stat[1]
+
+        #print(unit)
 
         #print(unit['base_phys_evasion'])
         #print(unit['base_mag_evasion'])
@@ -49,27 +61,27 @@ def end_initiative(turn_unit):
             turn_unit["initiative"] = 0
             done = True
 
-        if turn_unit["move_points"] == 1 and turn_unit["action_points"] == 2 and turn_unit["wait"] == True:
+        elif turn_unit["move_points"] == 1 and turn_unit["action_points"] == 2 and turn_unit["wait"] == True:
             turn_unit["initiative"] = 50
             done = True
 
-        if turn_unit["move_points"] == 1 and turn_unit["action_points"] == 1 and turn_unit["wait"] == True:
+        elif turn_unit["move_points"] == 1 and turn_unit["action_points"] == 1 and turn_unit["wait"] == True:
             turn_unit["initiative"] = 20
             done = True
 
-        if turn_unit["move_points"] == 1 and turn_unit["action_points"] == 0 and turn_unit["wait"] == True:
+        elif turn_unit["move_points"] == 1 and turn_unit["action_points"] == 0 and turn_unit["wait"] == True:
             turn_unit["initiative"] = 10
             done = True
 
-        if turn_unit["move_points"] == 0 and turn_unit["action_points"] == 2 and turn_unit["wait"] == True:
+        elif turn_unit["move_points"] == 0 and turn_unit["action_points"] == 2 and turn_unit["wait"] == True:
             turn_unit["initiative"] = 30
             done = True
 
-        if turn_unit["move_points"] == 0 and turn_unit["action_points"] == 1 and turn_unit["wait"] == True:
+        elif turn_unit["move_points"] == 0 and turn_unit["action_points"] == 1 and turn_unit["wait"] == True:
             turn_unit["initiative"] = 10
             done = True
 
-        return turn_unit["initiative"], done
+        return turn_unit["initiative"]
 
 def get_base_melee_damage(unit):
      
