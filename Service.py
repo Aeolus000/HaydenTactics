@@ -649,7 +649,7 @@ class UnitService:
     def generate_enemy_team(self):
         self.generate_random_unit(team = 1)
         self.generate_random_unit(team = 1)
-        self.generate_random_unit(team = 1)
+        #self.generate_random_unit(team = 1)
 
     @classmethod
     def get_nonplayer_units(self):

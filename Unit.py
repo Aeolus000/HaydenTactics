@@ -86,6 +86,8 @@ class Unit:
         Unit.lastknownid += 1
         self.unit_id = Unit.lastknownid
 
+        self.status_effects = []
+
         self.weapon_slot1 = None
         self.weapon_slot2 = None
         self.weapon_slot3 = None

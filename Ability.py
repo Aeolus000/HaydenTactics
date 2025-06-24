@@ -2,6 +2,8 @@ import sqlite3
 import Unit
 import Items
 import Stats
+import Combat
+import StatusEffects
 
 
 class Ability:
@@ -18,16 +20,30 @@ class Ability:
         self.damage_element = damage_element        # What element is this? (May have elemental resistances later on)
 
 
-Heal = Ability("Heal", "Priest", 10, 0, 1, "single", 1, -10, "Holy")
+#Heal = Ability("Heal", "Priest", 10, 0, 1, "single", 1, -10, "Holy")
 
 
 
 
+class Poison(Ability):
+    def __init__(self):
+        #super().__init__()
+        self.name = "Poison"
+        self.mana_cost = 2
+        self.action_cost = 1
 
+    def add_to_unit(self, unit):
+        unit['abilities'].append(self)
 
+    def apply(target):
+        target['status_effects'].append(StatusEffects.StatusEffectPoison(target))
 
-def heal(caster, target):
+class Weaken(Ability):
+    def __init__(self):
+        self.name = "Weaken"
+        self.mana_cost = 5
+        self.action_cost = 1
 
-    caster['current_mana'] = caster['current_mana'] - 10
-    caster['action_points'] = caster['action_points'] - 1
-    target['current_hp'] = target['current_hp'] + 10
+    def apply(target):
+        target['status_effects'].append(StatusEffects.StatusEffectWeaken(target))
+        target['base_str'] = round((target['base_str'] / 2))

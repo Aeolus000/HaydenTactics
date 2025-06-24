@@ -7,6 +7,7 @@ import Stats
 import GUITest2
 import Ability
 import random
+import StatusEffects
 
 from PyQt5.QtGui import QColor, QPainter, QPixmap
 
@@ -24,7 +25,8 @@ def create_unitlist():
         y += 1
         unit['pos_x'] = x
         unit['pos_y'] = y
-
+        unit['status_effects'] = []
+        unit['abilities'] = []
         #print (unit['pos_x'], unit['pos_y'])
         #print(f"initial phys res {unit['base_phys_evasion']}")
         #print(f"initial mag res {unit['base_mag_evasion']}")
@@ -32,11 +34,19 @@ def create_unitlist():
         unit['base_phys_evasion'] = unit['base_phys_evasion'] + evasion_stat[0]
         unit['base_mag_evasion'] = unit['base_mag_evasion'] + evasion_stat[1]
 
-        #print(unit)
+ 
+        #Ability.Poison().add_to_unit(unit)
+        Ability.Weaken.apply(unit)
+        #print(unit['abilities'])
+
+        #Ability.Poison.apply(unit)
+        #apply_status_effect(unit, StatusEffects.StatusEffectPoison(unit))
 
         #print(unit['base_phys_evasion'])
         #print(unit['base_mag_evasion'])
     #print(unitlist[0])
+
+    
     
     return unitlist
 
@@ -94,7 +104,7 @@ def get_base_melee_defense(unit):
     melee_defense = (unit['base_phys_res'])
     return melee_defense
 
-def get_hit_chance(attacker, defender = None, is_ranged = False):
+def get_hit_chance(attacker, defender = None, is_ranged = False, is_spell = False):
 
     if not is_ranged:
         if defender:
@@ -106,6 +116,11 @@ def get_hit_chance(attacker, defender = None, is_ranged = False):
             finalhitchance = (attacker['ranged_hit_chance'] - defender['base_phys_evasion'])
         else:
             finalhitchance = attacker['ranged_hit_chance']
+    elif is_spell:
+        if defender:
+            finalhitchance = (60 + (attacker['base_int'] * 0.25) - defender['base_mag_evasion'])
+        else:
+            finalhitchance = (60 + (attacker['base_int'] * 0.25))
 
     if finalhitchance >= 100: finalhitchance = 100
 
@@ -136,6 +151,10 @@ def attack(attacker, defender):
         defender['is_alive'] = False
 
     return hitroll, hit, round(damage)
+
+def use_ability(ability, target):
+
+    pass
 
 def separate_teams(init_list):
     team1 = []
@@ -177,6 +196,11 @@ def mana_regen(turn_unit):
         turn_unit['current_mana'] = turn_unit['max_mana']
 
     return turn_unit['current_mana']
+
+def process_status_effects(turn_unit):
+
+    for i in turn_unit['status_effects']:
+        i.process()
 
 def permadeath_check(turn_unit):
 

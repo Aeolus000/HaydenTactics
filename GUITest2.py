@@ -411,6 +411,7 @@ class CombatGUI(QWidget):
             turn_unit = self.init_list[0]
 
             Combat.mana_regen(turn_unit)
+            Combat.process_status_effects(turn_unit)
             
             if turn_unit['is_alive'] == False:
                 turn_unit["action_points"] = 0
@@ -426,6 +427,10 @@ class CombatGUI(QWidget):
 
             self.turn_unit_stats_label.setText(f"""{turn_unit['name']}'s Turn\n\nClass: {turn_unit['charclass']}\n\nStrength:\t\t{turn_unit['base_str']}\nDexterity:\t{turn_unit['base_dex']}\nSpeed:\t\t{turn_unit['base_spd']}\nVitality:\t\t{turn_unit['base_vit']}\nConstitution:\t{turn_unit['base_con']}\nIntelligence:\t{turn_unit['base_int']}\nMind:\t\t{turn_unit['base_mnd']}\nResistance:\t{turn_unit['base_res']}\n\nPhys Resistance: {Combat.get_base_melee_defense(turn_unit)}%""")
             self.turn_unit_combat_stats_label.setText(f"""\n\nHP:\t\t{turn_unit['current_hp']} / {turn_unit['max_hp']}\nMana:\t\t{turn_unit['current_mana']} / {turn_unit['max_mana']}\n\n{turn_unit['weapon_slot1'].name}\nMelee Damage: {Combat.get_base_melee_damage(turn_unit)}""")
+
+            for i in turn_unit['abilities']:
+                #print(i.name)
+                self.combat_actions.ability_box.addItem(i.name)
         
     def refresh_turn_order(self):
 
