@@ -35,12 +35,14 @@ def create_unitlist():
         unit['base_mag_evasion'] = unit['base_mag_evasion'] + evasion_stat[1]
 
  
-        #Ability.Poison().add_to_unit(unit)
-        Ability.Weaken.apply(unit)
-        #print(unit['abilities'])
+        Ability.Poison().add_to_unit(unit)
+        Ability.Weaken().add_to_unit(unit)
+        Ability.Heal().add_to_unit(unit)
+
+        unit['current_mana'] += 10
+        #Ability.Weaken.apply(unit)
 
         #Ability.Poison.apply(unit)
-        #apply_status_effect(unit, StatusEffects.StatusEffectPoison(unit))
 
         #print(unit['base_phys_evasion'])
         #print(unit['base_mag_evasion'])
@@ -152,9 +154,29 @@ def attack(attacker, defender):
 
     return hitroll, hit, round(damage)
 
-def use_ability(ability, target):
+def use_ability(caster, target, ability):
+    hit_chance = get_hit_chance(caster, target, is_spell = True)
 
-    pass
+    hitroll = random.randint(1, 100)
+    hit = None
+
+    if caster['team'] == target['team']:
+        if ability.type == "buff":
+            hit = True
+            print(target['name'] + " has been affected by " + ability.name + "!")
+            print("Healed for " + str(ability.apply(target, caster, just_data = True)) + " hit points!")
+            ability.apply(target, caster)
+            return hitroll, hit
+
+    if hitroll >= 100 - hit_chance:
+        hit = True
+        print(target['name'] + " has been affected by " + ability.name + "!")
+        ability.apply(target, caster)
+    else:
+        hit = False
+        print("missed!")
+
+    return hitroll, hit
 
 def separate_teams(init_list):
     team1 = []

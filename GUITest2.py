@@ -11,6 +11,7 @@ import Unit
 import Stats
 import Items
 import Combat
+import Ability
 #from Models import Base
 from Models import UnitTable, Base
 from Service import *
@@ -166,7 +167,7 @@ class CombatActions(QWidget):
 
         grid.setAlignment(Qt.AlignCenter)
 
-        self.ability_button.setDisabled(True)
+        #self.ability_button.setDisabled(True)
 
         self.ability_button.setFixedSize(150, 25)
         self.wait_button.setFixedSize(150, 25)
@@ -178,9 +179,6 @@ class CombatActions(QWidget):
         turn_unit["action_points"] = turn_unit["action_points"] - 1
         #print(f"action points: {turn_unit["action_points"]}")
 
-        if turn_unit["action_points"] == 0:
-            self.attack_button.setDisabled(True)
-
         attacker = turn_unit
         defender = combat_gui.get_selected_unit()
         hitroll, hit, damage = Combat.attack(attacker, defender)
@@ -191,8 +189,12 @@ class CombatActions(QWidget):
         elif hit == False:
             hit = "Misses!"
 
-        
         combat_gui.target_list_selection_changed()
+
+        if turn_unit["action_points"] == 0:
+            self.attack_button.setDisabled(True)
+            self.ability_button.setDisabled(True)
+
         combat_gui.message.setText(f"{turn_unit['name']}'s attack \n{hit}")
         #combat_gui.refresh_target_list()
 
@@ -210,6 +212,32 @@ class CombatActions(QWidget):
         turn_unit["wait"] = True
 
         combat_gui.end_turn_check()
+
+    def ability_button_pressed(self):
+        abilities = turn_unit['abilities']
+        selected_ability = self.ability_box.currentIndex()
+        attacker = turn_unit
+        defender = combat_gui.get_selected_unit()
+
+        
+
+        if turn_unit["action_points"] < abilities[selected_ability].action_cost:
+            print("You don't have enough AP to cast this!")
+            pass
+        elif turn_unit['current_mana'] < abilities[selected_ability].mana_cost:
+            print("You don't have enough mana!")
+        else:
+            turn_unit["action_points"] = turn_unit["action_points"] - abilities[selected_ability].action_cost
+            turn_unit['current_mana'] = turn_unit['current_mana'] - abilities[selected_ability].mana_cost
+            Combat.use_ability(attacker, defender, abilities[selected_ability])
+            
+        combat_gui.target_list_selection_changed()
+        if turn_unit["action_points"] == 0:
+            self.ability_button.setDisabled(True)
+            self.attack_button.setDisabled(True)
+            
+
+
 
 class CombatGUI(QWidget):
 
@@ -305,6 +333,7 @@ class CombatGUI(QWidget):
 
         
         self.combat_actions.attack_button.clicked.connect(self.combat_actions.attack_button_pressed)
+        self.combat_actions.ability_button.clicked.connect(self.combat_actions.ability_button_pressed)
 
         self.combat_actions.move_button.clicked.connect(self.combat_actions.move_button_pressed)
         self.combat_actions.wait_button.clicked.connect(self.combat_actions.wait_button_pressed)
@@ -407,8 +436,10 @@ class CombatGUI(QWidget):
             self.combat_actions.attack_button.setDisabled(False)
             self.combat_actions.move_button.setDisabled(False)
             self.combat_actions.wait_button.setDisabled(False)
+            self.combat_actions.ability_button.setDisabled(False)
 
             turn_unit = self.init_list[0]
+            self.combat_actions.ability_box.clear()
 
             Combat.mana_regen(turn_unit)
             Combat.process_status_effects(turn_unit)

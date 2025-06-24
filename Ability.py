@@ -22,7 +22,8 @@ class Ability:
 
 #Heal = Ability("Heal", "Priest", 10, 0, 1, "single", 1, -10, "Holy")
 
-
+    def add_to_unit(self, unit):
+        unit['abilities'].append(self)
 
 
 class Poison(Ability):
@@ -31,11 +32,13 @@ class Poison(Ability):
         self.name = "Poison"
         self.mana_cost = 2
         self.action_cost = 1
+        self.type = "debuff"
 
-    def add_to_unit(self, unit):
-        unit['abilities'].append(self)
+    def apply(self, target, caster = None):
+        for i in target['status_effects']:
+            if i.name == "Poison":
+                target['status_effects'].remove(i)
 
-    def apply(target):
         target['status_effects'].append(StatusEffects.StatusEffectPoison(target))
 
 class Weaken(Ability):
@@ -43,7 +46,39 @@ class Weaken(Ability):
         self.name = "Weaken"
         self.mana_cost = 5
         self.action_cost = 1
+        self.type = "debuff"
+        self.stack = 1
+        self.original_strength = 0
 
-    def apply(target):
-        target['status_effects'].append(StatusEffects.StatusEffectWeaken(target))
+    def apply(self, target, caster = None):
         target['base_str'] = round((target['base_str'] / 2))
+        print("current strength: " + str(target['base_str']))
+
+        target['status_effects'].append(StatusEffects.StatusEffectWeaken(target))        
+
+class Heal(Ability):
+    def __init__(self):
+        self.name = "Heal"
+        self.mana_cost = 10
+        self.action_cost = 2
+        self.type = "buff"
+
+    def apply(self, target, caster, just_data = False):
+
+        if just_data:
+            heal_amount = round(((target['max_hp'] * 0.2) + (caster['base_int'] * 2)))
+            return heal_amount
+        
+        target['current_hp'] = target['current_hp'] + round(((target['max_hp'] * 0.2) + (caster['base_int'] * 2)))
+        if target['current_hp'] > target['max_hp']:
+            target['current_hp'] = target['max_hp']
+
+class Fireball(Ability):
+    def __init__(self):
+        self.name = "Fireball"
+        self.mana_cost = 20
+        self.action_cost = 2
+        self.type = "area"
+
+    def apply(self, target, caster, just_data = False):
+        pass

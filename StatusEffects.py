@@ -21,7 +21,7 @@ class StatusEffectPoison(StatusEffect):
         self.duration = 3
         self.target = target
         self.type = "debuff"
-        self.tooltip = "Poisons the target for 3 turns, dealing 10% of their maximum health as damage at the start of their turn."
+        self.tooltip = "Poisons the target for 3 turns, dealing 10% of their maximum health as damage at the start of their turn. Doesn't Stack."
 
     def process(self):
         self.duration -= 1
@@ -33,7 +33,7 @@ class StatusEffectPoison(StatusEffect):
 
         if self.duration <= 0:
             self.target['status_effects'].remove(self)
-            print(self.target['status_effects'])
+            #print(self.target['status_effects'])
 
 
 class StatusEffectWeaken(StatusEffect):
@@ -43,16 +43,13 @@ class StatusEffectWeaken(StatusEffect):
         self.target = target
         self.type = "debuff"
         self.tooltip = "Halves the target's Strength for 2 turns."
-        self.original_str = target['base_str']
-
     
     def process(self):
         self.duration -= 1
         print(self.target['name'] + " is affected by Weaken for " + str(self.duration) + " more turns!")
-        #self.target['base_str'] = (self.target['base_str'] / 2)
 
         if self.duration <= 0:
-            self.target['base_str'] = self.original_str
+            self.target['base_str'] = self.target['base_str'] * 2
             self.target['status_effects'].remove(self)
 
 
