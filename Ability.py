@@ -3,8 +3,7 @@ import Unit
 import Items
 import Stats
 import Combat
-import StatusEffects
-
+from StatusEffects import *
 
 class Ability:
     def __init__(self, name, charclass, mana_cost, hp_cost, action_cost, target_type, area_effect, damage, damage_element):
@@ -20,7 +19,7 @@ class Ability:
         self.damage_element = damage_element        # What element is this? (May have elemental resistances later on)
 
 
-#Heal = Ability("Heal", "Priest", 10, 0, 1, "single", 1, -10, "Holy")
+#heal = Ability("Heal", "Priest", 10, 0, 1, "single", 1, -10, "Holy")
 
     def add_to_unit(self, unit):
         unit['abilities'].append(self)
@@ -39,7 +38,7 @@ class Poison(Ability):
             if i.name == "Poison":
                 target['status_effects'].remove(i)
 
-        target['status_effects'].append(StatusEffects.StatusEffectPoison(target))
+        target['status_effects'].append(StatusEffectPoison(target))
 
 class Weaken(Ability):
     def __init__(self):
@@ -54,7 +53,7 @@ class Weaken(Ability):
         target['base_str'] = round((target['base_str'] / 2))
         print("current strength: " + str(target['base_str']))
 
-        target['status_effects'].append(StatusEffects.StatusEffectWeaken(target))        
+        target['status_effects'].append(StatusEffectWeaken(target))        
 
 class Heal(Ability):
     def __init__(self):
